@@ -2,7 +2,7 @@ services:
   - type: web
     name: sameer-portfolio-backend
     env: python
-    buildCommand: ""
+    buildCommand: pip install -r requirements.txt
     startCommand: gunicorn myapp:app
     envVars:
       - key: OPENAI_API_KEY
