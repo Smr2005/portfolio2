@@ -1,48 +1,109 @@
-// === OFFLINE Q&A ===
-const qaPairs = {
-  "greeting": "Hello! I'm Sameer’s assistant. Ask me anything about his skills or experience.",
-  "projects": "Sameer built a Facial Recognition System, Disease Prediction App, personal portfolio, and IoT Gas Leak Detection System.",
-  "skills": "Sameer is skilled in Python, Flask, Streamlit, OpenCV, Pandas, NumPy, Power BI, and more.",
-  "technologies": "Python, Flask, OpenCV, Streamlit, MySQL, Power BI, Git, GitHub, and more.",
-  "education": "He is a B.Tech AI & Data Science graduate from Aditya College of Engineering (2021–2026). Completed his Intermediate in Maths, Physics, Chemistry at Vidyanikethan Junior College (2020–2022), and his Secondary School at Kothaindlu MPL High School (2019–2020).",
-  "linkedin": "Here’s Sameer’s LinkedIn: https://www.linkedin.com/in/shaik-sameer-69a3422a8",
-  "github": "GitHub: https://github.com/Smr2005",
-  "email": "You can email Sameer at shaiksameershubhan@gmail.com",
-  "internships": "He interned as AI Intern at TechSaksham Edunet Foundation (Microsoft & SAP CSR), Data Science Intern at SkillDzire Technologies, and is currently a Data Analytics Intern at APSCHE x SmartBridge Virtual Internship.",
-  "strengths": "Sameer is dedicated, innovative, a fast learner, and detail-oriented.",
-  "weakness": "He tends to hyper-focus on solving problems, but is improving his time management.",
-  "why should we hire you": "Because Sameer brings strong technical skills, creativity, and a drive to grow.",
-  "bye": "Thanks for chatting! Feel free to explore more of Sameer’s portfolio."
-};
+// === GEMINI API CONFIGURATION ===
+const GEMINI_API_KEY = "AIzaSyAOIoLw_WNKyBdiCwGbcUrITi7VZWle2UQ";
+const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
-// === KEYWORD MAP FOR QUERY VARIATIONS ===
-const keywordMap = {
-  "greeting": ["hi", "hello", "hey", "hai", "hii", "heyy", "yo", "namaste", "salaam"],
-  "projects": ["projects", "project list", "what has he built", "apps", "iot", "websites", "what did he make"],
-  "skills": ["skills", "coding", "expertise", "what can he do", "technical skills", "programming"],
-  "technologies": ["technologies", "tools", "stack", "frameworks", "platforms", "languages"],
-  "education": ["education", "study", "college", "school", "academics", "qualification"],
-  "linkedin": ["linkedin", "linkedin profile", "connect"],
-  "github": ["github", "code", "repo", "git"],
-  "email": ["email", "mail", "contact", "email id", "gmail"],
-  "internships": ["intern", "internship", "experience", "work experience", "training"],
-  "strengths": ["strengths", "positive", "strong points", "good at"],
-  "weakness": ["weakness", "negative", "area to improve"],
-  "why should we hire you": ["why hire", "hire him", "why sameer", "select him", "why choose"],
-  "bye": ["bye", "goodbye", "exit", "thank you", "see you", "done"]
-};
+// === FACTS ABOUT SAMEER ===
+const sameerFacts = `
+PERSONAL INFORMATION:
+- Name: Shaik Sameer
+- Email: shaiksameershubhan@gmail.com
+- LinkedIn: https://www.linkedin.com/in/shaik-sameer-69a3422a8
+- GitHub: https://github.com/Smr2005
+- Location: India
 
-// === FUNCTION TO MATCH USER INPUT TO A RESPONSE KEY ===
-function getResponseKey(userMessage) {
-  const cleanedMessage = userMessage.toLowerCase();
-  for (const key in keywordMap) {
-    for (const phrase of keywordMap[key]) {
-      if (cleanedMessage.includes(phrase)) {
-        return key;
-      }
+EDUCATION:
+- B.Tech in AI & Data Science from Aditya College of Engineering (2021–2026)
+- Intermediate in Maths, Physics, Chemistry at Vidyanikethan Junior College (2020–2022)
+- Secondary School at Kothaindlu MPL High School (2019–2020)
+
+TECHNICAL SKILLS:
+- Programming Languages: Python, JavaScript, HTML, CSS
+- Frameworks & Libraries: Flask, Streamlit, OpenCV, Pandas, NumPy
+- Databases: MySQL
+- Tools & Technologies: Power BI, Git, GitHub, VS Code
+- AI/ML: Computer Vision, Data Analysis, Machine Learning
+- Web Development: Frontend and Backend development
+
+PROJECTS:
+1. Facial Recognition System - Built using OpenCV and Python for real-time face detection and recognition
+2. Disease Prediction App - Machine learning application for predicting diseases based on symptoms
+3. Personal Portfolio Website - Full-stack web application showcasing skills and projects
+4. IoT Gas Leak Detection System - IoT-based safety system for detecting gas leaks
+5. AutoFeel- Car Sentiment Analyzer
+
+INTERNSHIPS & EXPERIENCE:
+- AI Intern at TechSaksham Edunet Foundation (Microsoft & SAP CSR)
+- Data Science Intern at SkillDzire Technologies
+- Data Analytics Intern at APSCHE x SmartBridge Virtual Internship (Current)
+- Skillbit Technologies Virtual Internship – Artificial Intelligence Intern
+
+STRENGTHS:
+- Dedicated and hardworking
+- Innovative problem solver
+- Fast learner and adaptable
+- Detail-oriented approach
+- Strong analytical thinking
+
+AREAS FOR IMPROVEMENT:
+- Time management (tends to hyper-focus on problem-solving)
+- Working on balancing perfectionism with efficiency
+
+CAREER GOALS:
+- Passionate about AI and Data Science
+- Interested in developing innovative solutions
+- Seeking opportunities to grow in tech industry
+- Committed to continuous learning and development
+
+CERTIFICATIONS & ACHIEVEMENTS:
+- Various certifications in AI, Data Science, and Web Development
+- Active participant in tech communities
+- Continuous learner with focus on emerging technologies
+`;
+
+// === FUNCTION TO CALL GEMINI API ===
+async function askGemini(question) {
+  const headers = {
+    "Content-Type": "application/json",
+    "X-goog-api-key": GEMINI_API_KEY
+  };
+  
+  const prompt = `You are an FAQ chatbot for Sameer's personal portfolio website. You should act as Sameer's assistant and answer questions about him professionally and enthusiastically.
+
+Use only the facts below to answer questions. If someone asks something not covered in the facts, politely redirect them to ask about Sameer's skills, projects, education, or experience.
+
+Keep responses conversational, helpful, and professional. Always refer to Sameer in third person. Keep responses concise but informative.
+
+FACTS ABOUT SAMEER:
+${sameerFacts}
+
+Question: ${question}
+Answer:`;
+
+  const payload = {
+    contents: [{
+      parts: [{
+        text: prompt
+      }]
+    }]
+  };
+
+  try {
+    const response = await fetch(GEMINI_API_URL, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    const data = await response.json();
+    return data.candidates[0].content.parts[0].text;
+  } catch (error) {
+    console.error('Error calling Gemini API:', error);
+    return "I'm sorry, I'm having trouble connecting right now. Please try asking about Sameer's projects, skills, education, or experience!";
   }
-  return null;
 }
 
 // === TEXT-TO-SPEECH FUNCTION ===
@@ -100,7 +161,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // === FUNCTION TO SEND MESSAGE TO THE CHATBOX ===
-function sendMessage() {
+async function sendMessage() {
   const inputElem = document.getElementById("userInput");
   const chatbox = document.getElementById("chatbox");
   const chatFloatBtn = document.getElementById("chat-float-btn");
@@ -121,17 +182,27 @@ function sendMessage() {
   chatFloatBtn.classList.add("talking");
   chatbox.scrollTop = chatbox.scrollHeight;
 
-  // Determine appropriate response based on keyword matching
-  const matchedKey = getResponseKey(userMessage);
-  const reply = qaPairs[matchedKey] || "🤖 I didn’t understand that. Try asking about Sameer’s certifications, tools, or internships.";
-
-  // After a short delay, remove typing animation and display reply with voice output
-  setTimeout(() => {
+  // Get response from Gemini API
+  try {
+    const reply = await askGemini(userMessage);
+    
+    // Remove typing animation and display reply with voice output
     const typingIndicator = document.getElementById("typing-indicator");
     if (typingIndicator) typingIndicator.remove();
+    
     chatbox.innerHTML += `<div><strong>Bot:</strong> ${reply}</div>`;
     chatFloatBtn.classList.remove("talking");
     chatbox.scrollTop = chatbox.scrollHeight;
     speak(reply);
-  }, 1000);
+  } catch (error) {
+    // Handle error case
+    const typingIndicator = document.getElementById("typing-indicator");
+    if (typingIndicator) typingIndicator.remove();
+    
+    const errorMessage = "I'm sorry, I'm having trouble connecting right now. Please try asking about Sameer's projects, skills, education, or experience!";
+    chatbox.innerHTML += `<div><strong>Bot:</strong> ${errorMessage}</div>`;
+    chatFloatBtn.classList.remove("talking");
+    chatbox.scrollTop = chatbox.scrollHeight;
+    speak(errorMessage);
+  }
 }
