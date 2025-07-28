@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeCursorEffects();
     initializeAdvancedEffects();
     initializeScrollProgress();
+    initializeMobileOptimizations();
 });
 
 // === 3D Background Animation ===
@@ -35,7 +36,8 @@ function createAnimatedBackground() {
     canvas.height = window.innerHeight;
     
     const particles = [];
-    const particleCount = 50;
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const particleCount = isMobile ? 20 : 50;
     
     // Create particles
     for (let i = 0; i < particleCount; i++) {
@@ -1284,3 +1286,260 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Initialize cursor particles
 document.addEventListener('DOMContentLoaded', initializeCursorParticles);
+
+// === Navigation Functionality ===
+function initializeNavigation() {
+    const navToggle = document.querySelector('.nav-toggle');
+    const navMenu = document.querySelector('.nav-menu-3d');
+    const navLinks = document.querySelectorAll('.nav-link-3d');
+    
+    if (!navToggle || !navMenu) return;
+    
+    // Toggle mobile menu
+    navToggle.addEventListener('click', () => {
+        navToggle.classList.toggle('active');
+        navMenu.classList.toggle('active');
+        document.body.classList.toggle('nav-open');
+    });
+    
+    // Close menu when clicking on a link
+    navLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            navToggle.classList.remove('active');
+            navMenu.classList.remove('active');
+            document.body.classList.remove('nav-open');
+        });
+    });
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!navToggle.contains(e.target) && !navMenu.contains(e.target)) {
+            navToggle.classList.remove('active');
+            navMenu.classList.remove('active');
+            document.body.classList.remove('nav-open');
+        }
+    });
+    
+    // Smooth scrolling for navigation links
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = link.getAttribute('href');
+            const targetSection = document.querySelector(targetId);
+            
+            if (targetSection) {
+                const offsetTop = targetSection.offsetTop - 80; // Account for fixed navbar
+                window.scrollTo({
+                    top: offsetTop,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+}
+
+// === Mobile Optimizations ===
+function initializeMobileOptimizations() {
+    // Detect mobile device
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    
+    if (isMobile || isTouch) {
+        document.body.classList.add('mobile-device');
+        
+        // Optimize animations for mobile
+        optimizeAnimationsForMobile();
+        
+        // Add touch-friendly interactions
+        addTouchInteractions();
+        
+        // Optimize particle count for mobile
+        optimizeParticlesForMobile();
+        
+        // Add mobile-specific event listeners
+        addMobileEventListeners();
+    }
+    
+    // Handle orientation changes
+    window.addEventListener('orientationchange', () => {
+        setTimeout(() => {
+            // Recalculate dimensions after orientation change
+            const canvas = document.getElementById('bg-canvas');
+            if (canvas) {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            
+            // Trigger resize event for other components
+            window.dispatchEvent(new Event('resize'));
+        }, 100);
+    });
+    
+    // Optimize scroll performance on mobile
+    let ticking = false;
+    function optimizedScrollHandler() {
+        if (!ticking) {
+            requestAnimationFrame(() => {
+                // Handle scroll events here
+                updateScrollProgress();
+                ticking = false;
+            });
+            ticking = true;
+        }
+    }
+    
+    window.addEventListener('scroll', optimizedScrollHandler, { passive: true });
+}
+
+function optimizeAnimationsForMobile() {
+    // Reduce particle count on mobile
+    const particles = document.querySelectorAll('.particle');
+    particles.forEach((particle, index) => {
+        if (index > 5) { // Keep only first 6 particles on mobile
+            particle.style.display = 'none';
+        }
+    });
+    
+    // Reduce background elements on mobile
+    const bgCircles = document.querySelectorAll('.bg-circle');
+    bgCircles.forEach((circle, index) => {
+        if (index > 1) { // Keep only first 2 background circles
+            circle.style.display = 'none';
+        }
+    });
+    
+    // Simplify 3D transforms on mobile
+    const floatingElements = document.querySelectorAll('.floating-cube, .profile-card');
+    floatingElements.forEach(element => {
+        element.style.willChange = 'transform';
+        element.style.backfaceVisibility = 'hidden';
+    });
+}
+
+function addTouchInteractions() {
+    // Add touch feedback to interactive elements
+    const touchElements = document.querySelectorAll('.project-card-3d, .cert-card-3d, .contact-card-3d, .nav-link-3d');
+    
+    touchElements.forEach(element => {
+        element.addEventListener('touchstart', () => {
+            element.style.transform = 'scale(0.98)';
+        }, { passive: true });
+        
+        element.addEventListener('touchend', () => {
+            setTimeout(() => {
+                element.style.transform = '';
+            }, 150);
+        }, { passive: true });
+    });
+    
+    // Prevent zoom on double tap for specific elements
+    const preventZoomElements = document.querySelectorAll('button, .nav-link-3d, .project-link');
+    preventZoomElements.forEach(element => {
+        element.addEventListener('touchend', (e) => {
+            e.preventDefault();
+        });
+    });
+}
+
+function optimizeParticlesForMobile() {
+    // Reduce canvas particle count for mobile
+    const canvas = document.getElementById('bg-canvas');
+    if (canvas) {
+        const ctx = canvas.getContext('2d');
+        // Reduce particle count to 20 for mobile (from 50)
+        window.mobileParticleCount = 20;
+    }
+}
+
+function addMobileEventListeners() {
+    // Handle mobile-specific gestures
+    let touchStartY = 0;
+    let touchEndY = 0;
+    
+    document.addEventListener('touchstart', (e) => {
+        touchStartY = e.changedTouches[0].screenY;
+    }, { passive: true });
+    
+    document.addEventListener('touchend', (e) => {
+        touchEndY = e.changedTouches[0].screenY;
+        handleSwipeGesture();
+    }, { passive: true });
+    
+    function handleSwipeGesture() {
+        const swipeThreshold = 50;
+        const diff = touchStartY - touchEndY;
+        
+        if (Math.abs(diff) > swipeThreshold) {
+            if (diff > 0) {
+                // Swipe up - could trigger some action
+                console.log('Swipe up detected');
+            } else {
+                // Swipe down - could trigger some action
+                console.log('Swipe down detected');
+            }
+        }
+    }
+    
+    // Optimize touch scrolling
+    document.addEventListener('touchmove', (e) => {
+        // Allow natural scrolling
+    }, { passive: true });
+}
+
+function updateScrollProgress() {
+    const progressBar = document.querySelector('.progress-bar');
+    if (!progressBar) return;
+    
+    const scrollTop = window.pageYOffset;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = (scrollTop / docHeight) * 100;
+    
+    progressBar.style.width = scrollPercent + '%';
+}
+
+// === Viewport Height Fix for Mobile ===
+function setMobileViewportHeight() {
+    // Fix for mobile viewport height issues
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+}
+
+// Set initial viewport height
+setMobileViewportHeight();
+
+// Update on resize and orientation change
+window.addEventListener('resize', setMobileViewportHeight);
+window.addEventListener('orientationchange', () => {
+    setTimeout(setMobileViewportHeight, 100);
+});
+
+// === Performance Optimizations ===
+function initializePerformanceOptimizations() {
+    // Use Intersection Observer for animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animate-in');
+                
+                // Trigger skill bar animations when skills section is visible
+                if (entry.target.id === 'skills') {
+                    animateSkillBars();
+                }
+            }
+        });
+    }, observerOptions);
+    
+    // Observe all sections
+    const sections = document.querySelectorAll('.section-3d');
+    sections.forEach(section => {
+        observer.observe(section);
+    });
+}
+
+// Initialize performance optimizations
+document.addEventListener('DOMContentLoaded', initializePerformanceOptimizations);
