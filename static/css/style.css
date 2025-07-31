@@ -9693,11 +9693,10 @@ body.mobile-device textarea {
   }
 }
 
-/* === COMPREHENSIVE MOBILE OPTIMIZATION === */
+/* === MOBILE OPTIMIZATION === */
 
-/* Mobile responsiveness for 3D visuals */
+/* Mobile-specific 3D visual adjustments */
 @media (max-width: 768px) {
-  /* Reduce 3D visual size and complexity */
   .about-3d-visual,
   .projects-3d-visual,
   .skills-3d-visual,
@@ -9706,16 +9705,12 @@ body.mobile-device textarea {
   .chat-3d-visual,
   .resume-3d-visual,
   .contact-3d-visual {
-    width: 100px;
-    height: 80px;
-    top: 5px;
-    right: 5px;
-    /* Reduce GPU load */
-    transform: translateZ(0);
-    will-change: transform;
+    width: 80px !important;
+    height: 60px !important;
+    top: 10px !important;
+    right: 10px !important;
   }
   
-  /* Smaller main elements */
   .profile-body,
   .rocket-body,
   .tech-body,
@@ -9723,23 +9718,17 @@ body.mobile-device textarea {
   .experience-body,
   .chat-body,
   .resume-body {
-    font-size: 1.5rem;
-    /* Reduce shadow complexity */
-    filter: drop-shadow(0 0 8px rgba(0, 255, 255, 0.4));
+    font-size: 1.2rem !important;
   }
   
-  /* Smaller orbiting elements */
   .achievement,
   .element,
   .stack,
   .badge,
   .icon {
-    font-size: 0.7rem;
-    /* Reduce shadow complexity */
-    filter: drop-shadow(0 0 4px rgba(0, 255, 255, 0.3));
+    font-size: 0.6rem !important;
   }
   
-  /* Smaller orbit containers */
   .achievement-badges,
   .project-elements,
   .tech-stack,
@@ -9747,23 +9736,21 @@ body.mobile-device textarea {
   .experience-icons,
   .chat-elements,
   .resume-elements {
-    width: 60px;
-    height: 60px;
+    width: 50px !important;
+    height: 50px !important;
   }
   
-  /* Simplified mobile orbit animation */
+  /* Simplified mobile animations */
   @keyframes orbitElements {
     0% { 
-      transform: rotate(0deg) translateX(30px) rotate(0deg);
-      opacity: 0.8;
+      transform: rotate(0deg) translateX(25px) rotate(0deg);
     }
     100% { 
-      transform: rotate(360deg) translateX(30px) rotate(-360deg);
-      opacity: 0.8;
+      transform: rotate(360deg) translateX(25px) rotate(-360deg);
     }
   }
   
-  /* Slower animations for better mobile performance */
+  /* Slower animations for mobile */
   .floating-profile,
   .floating-rocket,
   .floating-tech,
@@ -9771,50 +9758,15 @@ body.mobile-device textarea {
   .floating-experience,
   .floating-chat,
   .floating-resume {
-    animation-duration: 6s; /* Slower from 4s */
+    animation-duration: 6s !important;
   }
   
-  .achievement,
-  .element,
-  .stack,
-  .badge,
-  .icon {
-    animation-duration: 8s; /* Slower from 6s */
-  }
-  
-  /* Reduce section animations complexity */
   .section-3d {
-    animation-duration: 8s; /* Slower from 6s */
-    /* Reduce 3D transforms */
-    transform-style: flat;
-    perspective: none;
-  }
-  
-  /* Disable hover effects on mobile */
-  .section-3d:hover {
-    transform: none;
-    box-shadow: 
-      0 10px 30px rgba(0, 255, 255, 0.1),
-      0 0 50px rgba(0, 255, 255, 0.05);
-  }
-  
-  /* Simplify card animations */
-  .project-card-3d,
-  .skill-card-3d,
-  .cert-card-3d {
-    animation-duration: 10s; /* Slower */
-    transform-style: flat;
-  }
-  
-  /* Reduce text shadow complexity */
-  .section-title-3d,
-  .section-subtitle {
-    text-shadow: 0 0 5px rgba(0, 255, 255, 0.2);
-    animation-duration: 8s;
+    animation-duration: 8s !important;
   }
 }
 
-/* Hide on very small screens for performance */
+/* Hide on very small screens */
 @media (max-width: 480px) {
   .about-3d-visual,
   .projects-3d-visual,
@@ -9824,68 +9776,6 @@ body.mobile-device textarea {
   .chat-3d-visual,
   .resume-3d-visual,
   .contact-3d-visual {
-    display: none;
-  }
-  
-  /* Disable complex animations on very small screens */
-  .section-3d {
-    animation: none;
-  }
-  
-  .project-card-3d,
-  .skill-card-3d,
-  .cert-card-3d {
-    animation: none;
-  }
-  
-  .section-title-3d {
-    animation: none;
-    text-shadow: none;
+    display: none !important;
   }
 }
-
-/* Performance optimization for low-end devices */
-@media (max-width: 768px) and (max-height: 1024px) {
-  /* Reduce animation complexity */
-  .particles-container,
-  .geometric-shapes,
-  .bg-elements {
-    display: none;
-  }
-  
-  /* Simplify backdrop filters */
-  .section-3d {
-    backdrop-filter: blur(5px) !important;
-  }
-  
-  .project-card-3d,
-  .skill-card-3d,
-  .cert-card-3d {
-    backdrop-filter: blur(3px) !important;
-  }
-}
-
-/* Reduce motion for accessibility and performance */
-@media (prefers-reduced-motion: reduce) {
-  .floating-profile,
-  .floating-rocket,
-  .floating-tech,
-  .floating-certificate,
-  .floating-experience,
-  .floating-chat,
-  .floating-resume,
-  .achievement,
-  .element,
-  .stack,
-  .badge,
-  .icon,
-  .section-3d,
-  .project-card-3d,
-  .skill-card-3d,
-  .cert-card-3d,
-  .section-title-3d {
-    animation: none !important;
-  }
-}
-
-@k
