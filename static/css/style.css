@@ -280,19 +280,7 @@ html, body {
   border: 1px solid rgba(0, 255, 255, 0.3) !important;
 }
 
-.project-3d-animation-area,
-.skill-3d-animation-area,
-.chat-3d-animation-area,
-.resume-3d-animation-area {
-  display: flex !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  align-items: center !important;
-  justify-content: center !important;
-  min-height: 120px !important;
-  background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(255, 215, 0, 0.05)) !important;
-  border-radius: 20px 20px 0 0 !important;
-}
+/* Old animation area classes removed - now using new 3D visual system */
 
 /* Ensure certification cards are visible */
 .certifications-grid {
@@ -3043,17 +3031,7 @@ body.mobile-device textarea {
     gap: 1.5rem;
   }
   
-  .project-3d-animation-area,
-  .chat-3d-animation-area,
-  .resume-3d-animation-area {
-    height: 160px;
-    padding: 1.5rem;
-  }
-  
-  .skill-3d-animation-area {
-    height: 100px;
-    padding: 1rem;
-  }
+  /* Old animation area classes removed - using new 3D visual system */
 }
 
 /* Tablet Portrait & Large Mobile (481px - 767px) */
@@ -3072,17 +3050,7 @@ body.mobile-device textarea {
     gap: 1.5rem;
   }
   
-  .project-3d-animation-area,
-  .chat-3d-animation-area,
-  .resume-3d-animation-area {
-    height: 140px;
-    padding: 1rem;
-  }
-  
-  .skill-3d-animation-area {
-    height: 80px;
-    padding: 0.8rem;
-  }
+  /* Old animation area classes removed - using new 3D visual system */
   
   .contact-container {
     grid-template-columns: 1fr;
@@ -3110,17 +3078,7 @@ body.mobile-device textarea {
     gap: 1rem;
   }
   
-  .project-3d-animation-area,
-  .chat-3d-animation-area,
-  .resume-3d-animation-area {
-    height: 120px;
-    padding: 0.8rem;
-  }
-  
-  .skill-3d-animation-area {
-    height: 60px;
-    padding: 0.5rem;
-  }
+  /* Old animation area classes removed - using new 3D visual system */
   
   .project-content {
     padding: 1rem;
@@ -4658,15 +4616,15 @@ body.mobile-device textarea {
 
 /* === SECTION 3D ANIMATIONS === */
 
-/* Chat Bot 3D Visual */
+/* Chat Bot 3D Visual - Updated to match new system */
 .chat-3d-visual {
   position: absolute;
-  top: -30px;
-  right: 50px;
-  width: 100px;
-  height: 100px;
+  top: 20px;
+  right: 20px;
+  width: 200px;
+  height: 150px;
   pointer-events: none;
-  z-index: 5;
+  z-index: 10;
 }
 
 .chat-bot-3d-scene {
@@ -4784,15 +4742,15 @@ body.mobile-device textarea {
   animation-delay: 1.4s;
 }
 
-/* Resume 3D Visual */
+/* Resume 3D Visual - Updated to match new system */
 .resume-3d-visual {
   position: absolute;
-  top: -30px;
-  right: 50px;
-  width: 100px;
-  height: 100px;
+  top: 20px;
+  right: 20px;
+  width: 200px;
+  height: 150px;
   pointer-events: none;
-  z-index: 5;
+  z-index: 10;
 }
 
 .resume-3d-scene {
@@ -9693,10 +9651,11 @@ body.mobile-device textarea {
   }
 }
 
-/* === MOBILE OPTIMIZATION === */
+/* === COMPREHENSIVE MOBILE OPTIMIZATION === */
 
-/* Mobile-specific 3D visual adjustments */
+/* Mobile tablet optimization (768px and below) */
 @media (max-width: 768px) {
+  /* Reduce 3D visual sizes */
   .about-3d-visual,
   .projects-3d-visual,
   .skills-3d-visual,
@@ -9740,34 +9699,37 @@ body.mobile-device textarea {
     height: 50px !important;
   }
   
-  /* Simplified mobile animations */
-  @keyframes orbitElements {
-    0% { 
-      transform: rotate(0deg) translateX(25px) rotate(0deg);
-    }
-    100% { 
-      transform: rotate(360deg) translateX(25px) rotate(-360deg);
-    }
+  /* Chat section mobile fixes */
+  .chat-container {
+    padding: 1rem !important;
   }
   
-  /* Slower animations for mobile */
-  .floating-profile,
-  .floating-rocket,
-  .floating-tech,
-  .floating-certificate,
-  .floating-experience,
-  .floating-chat,
-  .floating-resume {
-    animation-duration: 6s !important;
+  .chat-messages {
+    max-height: 300px !important;
   }
   
-  .section-3d {
-    animation-duration: 8s !important;
+  .chat-input {
+    font-size: 14px !important;
+  }
+  
+  /* Resume section mobile fixes */
+  .resume-container {
+    padding: 1rem !important;
+  }
+  
+  .resume-form input,
+  .resume-form textarea {
+    font-size: 14px !important;
+  }
+  
+  .resume-btn {
+    width: 100% !important;
   }
 }
 
-/* Hide on very small screens */
+/* Mobile phone optimization (480px and below) */
 @media (max-width: 480px) {
+  /* Hide all 3D visuals on small screens */
   .about-3d-visual,
   .projects-3d-visual,
   .skills-3d-visual,
@@ -9777,5 +9739,14 @@ body.mobile-device textarea {
   .resume-3d-visual,
   .contact-3d-visual {
     display: none !important;
+  }
+  
+  /* Optimize section spacing */
+  .section-3d {
+    padding: 2rem 1rem !important;
+  }
+  
+  .section-title-3d {
+    font-size: 1.8rem !important;
   }
 }
