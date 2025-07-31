@@ -9653,8 +9653,62 @@ body.mobile-device textarea {
 
 /* === COMPREHENSIVE MOBILE OPTIMIZATION === */
 
+/* === COMPLETE MOBILE OPTIMIZATION === */
+
 /* Mobile tablet optimization (768px and below) */
 @media (max-width: 768px) {
+  /* Fix navbar for mobile */
+  .navbar-3d {
+    padding: 0.5rem 1rem !important;
+    height: 60px !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+  }
+  
+  /* Mobile navigation menu */
+  .nav-menu-3d {
+    display: flex !important;
+    flex-direction: row !important;
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    gap: 0.5rem !important;
+  }
+  
+  .nav-menu-3d li {
+    margin: 0 !important;
+  }
+  
+  .nav-link-3d {
+    display: block !important;
+    font-size: 0.8rem !important;
+    padding: 0.4rem 0.6rem !important;
+    margin: 0 !important;
+    color: var(--primary-cyan) !important;
+    text-decoration: none !important;
+    border-radius: 5px !important;
+    transition: all 0.3s ease !important;
+    cursor: pointer !important;
+    touch-action: manipulation !important;
+  }
+  
+  .nav-link-3d:hover,
+  .nav-link-3d:active {
+    background: rgba(0, 255, 255, 0.2) !important;
+    color: white !important;
+  }
+  
+  /* Hide nav toggle on tablet */
+  .nav-toggle {
+    display: none !important;
+  }
+  
+  /* Fix body padding for smaller navbar */
+  body {
+    padding-top: 60px !important;
+  }
+  
   /* Reduce 3D visual sizes */
   .about-3d-visual,
   .projects-3d-visual,
@@ -9670,60 +9724,197 @@ body.mobile-device textarea {
     right: 10px !important;
   }
   
-  .profile-body,
-  .rocket-body,
-  .tech-body,
-  .certificate-body,
-  .experience-body,
-  .chat-body,
-  .resume-body {
-    font-size: 1.2rem !important;
+  /* Fix project buttons */
+  .project-links {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.8rem !important;
+    margin-top: 1rem !important;
+    width: 100% !important;
   }
   
-  .achievement,
-  .element,
-  .stack,
-  .badge,
-  .icon {
-    font-size: 0.6rem !important;
+  .project-link {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.5rem !important;
+    width: 100% !important;
+    padding: 0.75rem 1rem !important;
+    font-size: 0.9rem !important;
+    text-align: center !important;
+    border-radius: 8px !important;
+    text-decoration: none !important;
+    cursor: pointer !important;
+    touch-action: manipulation !important;
+    transition: all 0.3s ease !important;
+    border: 1px solid rgba(0, 255, 255, 0.3) !important;
+    background: rgba(0, 255, 255, 0.1) !important;
+    color: var(--primary-cyan) !important;
+    box-sizing: border-box !important;
   }
   
-  .achievement-badges,
-  .project-elements,
-  .tech-stack,
-  .cert-badges,
-  .experience-icons,
-  .chat-elements,
-  .resume-elements {
-    width: 50px !important;
-    height: 50px !important;
+  .project-link:hover,
+  .project-link:active {
+    background: rgba(0, 255, 255, 0.2) !important;
+    border-color: rgba(0, 255, 255, 0.5) !important;
+    transform: translateY(-2px) !important;
+    color: white !important;
   }
   
-  /* Chat section mobile fixes */
-  .chat-container {
+  .project-link.live-demo {
+    background: rgba(0, 255, 0, 0.1) !important;
+    border-color: rgba(0, 255, 0, 0.3) !important;
+    color: #00ff00 !important;
+  }
+  
+  .project-link.live-demo:hover {
+    background: rgba(0, 255, 0, 0.2) !important;
+    border-color: rgba(0, 255, 0, 0.5) !important;
+  }
+  
+  .project-link.source-code {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+    color: white !important;
+  }
+  
+  .project-link.source-code:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-color: rgba(255, 255, 255, 0.5) !important;
+  }
+  
+  .project-link i {
+    font-size: 1rem !important;
+  }
+  
+  /* Fix Chat section for mobile */
+  .enhanced-chat-container {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+  
+  .chat-interface {
     padding: 1rem !important;
+    margin: 0 !important;
   }
   
   .chat-messages {
-    max-height: 300px !important;
+    max-height: 250px !important;
+    padding: 0.5rem !important;
+    font-size: 0.9rem !important;
+  }
+  
+  .chat-input-container {
+    display: flex !important;
+    gap: 0.5rem !important;
+    padding: 0.5rem !important;
   }
   
   .chat-input {
-    font-size: 14px !important;
+    flex: 1 !important;
+    padding: 0.75rem !important;
+    font-size: 16px !important; /* Prevents zoom on iOS */
+    border-radius: 8px !important;
+    border: 1px solid rgba(0, 255, 255, 0.3) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
   }
   
-  /* Resume section mobile fixes */
-  .resume-container {
+  .chat-send-btn {
+    padding: 0.75rem 1rem !important;
+    font-size: 0.9rem !important;
+    border-radius: 8px !important;
+    background: var(--primary-cyan) !important;
+    color: black !important;
+    border: none !important;
+    cursor: pointer !important;
+    touch-action: manipulation !important;
+  }
+  
+  /* Fix Resume section for mobile */
+  .contact-resume-container {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+  
+  .resume-form-container {
     padding: 1rem !important;
+    margin: 0 !important;
   }
   
-  .resume-form input,
-  .resume-form textarea {
-    font-size: 14px !important;
+  .form-group {
+    margin-bottom: 1rem !important;
+  }
+  
+  .form-group label {
+    display: block !important;
+    margin-bottom: 0.5rem !important;
+    color: var(--text-primary) !important;
+    font-size: 0.9rem !important;
+  }
+  
+  .form-group input,
+  .form-group textarea {
+    width: 100% !important;
+    padding: 0.75rem !important;
+    font-size: 16px !important; /* Prevents zoom on iOS */
+    border-radius: 8px !important;
+    border: 1px solid rgba(0, 255, 255, 0.3) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+    box-sizing: border-box !important;
+  }
+  
+  .form-group textarea {
+    min-height: 100px !important;
+    resize: vertical !important;
   }
   
   .resume-btn {
     width: 100% !important;
+    padding: 1rem !important;
+    font-size: 1rem !important;
+    border-radius: 8px !important;
+    background: var(--primary-cyan) !important;
+    color: black !important;
+    border: none !important;
+    cursor: pointer !important;
+    touch-action: manipulation !important;
+    margin-top: 1rem !important;
+  }
+  
+  /* Fix section spacing */
+  .section-3d {
+    padding: 2rem 1rem !important;
+    margin: 1rem auto !important;
+    width: 95% !important;
+  }
+  
+  .section-title-3d {
+    font-size: 1.8rem !important;
+    margin-bottom: 1rem !important;
+  }
+  
+  /* Fix project cards */
+  .projects-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+  }
+  
+  .project-card-3d {
+    padding: 1rem !important;
+  }
+  
+  /* Fix skills grid */
+  .skills-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+  
+  /* Fix contact grid */
+  .contact-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
   }
 }
 
@@ -9741,12 +9932,133 @@ body.mobile-device textarea {
     display: none !important;
   }
   
-  /* Optimize section spacing */
+  /* Mobile phone navbar */
+  .navbar-3d {
+    padding: 0.3rem 0.5rem !important;
+    height: 50px !important;
+    position: relative !important;
+  }
+  
+  /* Show hamburger menu on small screens */
+  .nav-toggle {
+    display: block !important;
+    cursor: pointer !important;
+    z-index: 10001 !important;
+  }
+  
+  .nav-toggle {
+    position: relative !important;
+    width: 30px !important;
+    height: 30px !important;
+    cursor: pointer !important;
+  }
+  
+  .nav-toggle span {
+    display: block !important;
+    position: relative !important;
+    width: 25px !important;
+    height: 3px !important;
+    background: var(--primary-cyan) !important;
+    transition: all 0.3s ease !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+  }
+  
+  .nav-toggle span::before,
+  .nav-toggle span::after {
+    content: '' !important;
+    position: absolute !important;
+    width: 25px !important;
+    height: 3px !important;
+    background: var(--primary-cyan) !important;
+    transition: all 0.3s ease !important;
+  }
+  
+  .nav-toggle span::before {
+    top: -8px !important;
+  }
+  
+  .nav-toggle span::after {
+    top: 8px !important;
+  }
+  
+  /* Hamburger animation when active */
+  .nav-toggle.active span {
+    background: transparent !important;
+  }
+  
+  .nav-toggle.active span::before {
+    transform: rotate(45deg) !important;
+    top: 0 !important;
+  }
+  
+  .nav-toggle.active span::after {
+    transform: rotate(-45deg) !important;
+    top: 0 !important;
+  }
+  
+  /* Mobile menu */
+  .nav-menu-3d {
+    position: fixed !important;
+    top: 50px !important;
+    left: -100% !important;
+    width: 100% !important;
+    height: calc(100vh - 50px) !important;
+    background: rgba(10, 10, 10, 0.95) !important;
+    backdrop-filter: blur(10px) !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    padding-top: 2rem !important;
+    transition: left 0.3s ease !important;
+    z-index: 10000 !important;
+  }
+  
+  .nav-menu-3d.active {
+    left: 0 !important;
+  }
+  
+  .nav-menu-3d li {
+    margin: 1rem 0 !important;
+  }
+  
+  .nav-link-3d {
+    font-size: 1.2rem !important;
+    padding: 1rem 2rem !important;
+    width: 200px !important;
+    text-align: center !important;
+    border: 1px solid rgba(0, 255, 255, 0.3) !important;
+    border-radius: 10px !important;
+  }
+  
+  /* Prevent body scroll when mobile menu is open */
+  body.nav-open {
+    overflow: hidden !important;
+  }
+  
+  body {
+    padding-top: 50px !important;
+  }
+  
+  /* Optimize sections for very small screens */
   .section-3d {
-    padding: 2rem 1rem !important;
+    padding: 1.5rem 0.5rem !important;
+    margin: 0.5rem auto !important;
+    width: 98% !important;
   }
   
   .section-title-3d {
-    font-size: 1.8rem !important;
+    font-size: 1.5rem !important;
+  }
+  
+  /* Optimize chat for small screens */
+  .chat-messages {
+    max-height: 200px !important;
+  }
+  
+  .chat-input,
+  .form-group input,
+  .form-group textarea {
+    font-size: 16px !important; /* Prevents zoom */
   }
 }
