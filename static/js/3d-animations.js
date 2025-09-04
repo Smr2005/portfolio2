@@ -2,6 +2,9 @@
 
 // Initialize everything when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
+    if (window.AOS && typeof AOS.init === 'function') {
+        AOS.init({ once: true, duration: 600, easing: 'ease-out' });
+    }
     initializeAnimations();
     initializeParticles();
     initializeScrollAnimations();
@@ -339,9 +342,7 @@ function initializeFloatingElements() {
     });
 }
 
-// === GEMINI API CONFIGURATION ===
-const GEMINI_API_KEY = "AIzaSyAOIoLw_WNKyBdiCwGbcUrITi7VZWle2UQ";
-const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+// === AI Chat handled server-side via /api/chat (see chatbot.js). No API keys in client. ===
 
 // === FACTS ABOUT SAMEER ===
 const sameerFacts = `

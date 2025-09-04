@@ -1,6 +1,5 @@
-// === GEMINI API CONFIGURATION ===
-const GEMINI_API_KEY = "AIzaSyAOIoLw_WNKyBdiCwGbcUrITi7VZWle2UQ";
-const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+// === CHAT API (Server-Proxy) CONFIGURATION ===
+const CHAT_API_URL = "/api/chat"; // backend endpoint to avoid exposing keys
 
 // === FACTS ABOUT SAMEER ===
 const sameerFacts = `
@@ -60,48 +59,26 @@ CERTIFICATIONS & ACHIEVEMENTS:
 - Continuous learner with focus on emerging technologies
 `;
 
-// === FUNCTION TO CALL GEMINI API ===
-async function askGemini(question) {
-  const headers = {
-    "Content-Type": "application/json",
-    "X-goog-api-key": GEMINI_API_KEY
-  };
-  
-  const prompt = `You are an FAQ chatbot for Sameer's personal portfolio website. You should act as Sameer's assistant and answer questions about him professionally and enthusiastically.
-
-Use only the facts below to answer questions. If someone asks something not covered in the facts, politely redirect them to ask about Sameer's skills, projects, education, or experience.
-
-Keep responses conversational, helpful, and professional. Always refer to Sameer in third person. Keep responses concise but informative.
-
-FACTS ABOUT SAMEER:
-${sameerFacts}
-
-Question: ${question}
-Answer:`;
-
-  const payload = {
-    contents: [{
-      parts: [{
-        text: prompt
-      }]
-    }]
-  };
+// === FUNCTION TO CALL SERVER CHAT API ===
+async function askServer(question) {
+  const prompt = `You are an FAQ chatbot for Sameer's personal portfolio website. You should act as Sameer's assistant and answer questions about him professionally and enthusiastically.\n\nUse only the facts below to answer questions. If someone asks something not covered in the facts, politely redirect them to ask about Sameer's skills, projects, education, or experience.\n\nKeep responses conversational, helpful, and professional. Always refer to Sameer in third person. Keep responses concise but informative.\n\nFACTS ABOUT SAMEER:\n${sameerFacts}\n\nQuestion: ${question}\nAnswer:`;
 
   try {
-    const response = await fetch(GEMINI_API_URL, {
+    const response = await fetch(CHAT_API_URL, {
       method: 'POST',
-      headers: headers,
-      body: JSON.stringify(payload)
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt })
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error || `HTTP ${response.status}`);
     }
 
     const data = await response.json();
-    return data.candidates[0].content.parts[0].text;
+    return data.answer;
   } catch (error) {
-    console.error('Error calling Gemini API:', error);
+    console.error('Error calling chat API:', error);
     return "I'm sorry, I'm having trouble connecting right now. Please try asking about Sameer's projects, skills, education, or experience!";
   }
 }
@@ -184,7 +161,7 @@ async function sendMessage() {
 
   // Get response from Gemini API
   try {
-    const reply = await askGemini(userMessage);
+    const reply = await askServer(userMessage);
     
     // Remove typing animation and display reply with voice output
     const typingIndicator = document.getElementById("typing-indicator");

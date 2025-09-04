@@ -5,9 +5,13 @@ services:
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn myapp:app
     envVars:
-      - key: OPENAI_API_KEY
-        value: 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
       - key: SENDER_EMAIL
-        value: shaiksameershubhan71@gmail.com
+        sync: false
       - key: SENDER_PASSWORD
-        value: rtswjzdklwcajems
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: BASE_URL
+        sync: false
+      - key: APP_SECRET
+        sync: false
