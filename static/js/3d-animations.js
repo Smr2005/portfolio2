@@ -476,43 +476,16 @@ function initializeChatBot() {
         voiceToggleBtn.addEventListener('click', toggleVoiceResponse);
     }
 
-    // === FUNCTION TO CALL GEMINI API ===
-    async function askGemini(question) {
-        console.log('askGemini called with question:', question);
-        
-        const headers = {
-            "Content-Type": "application/json",
-            "X-goog-api-key": GEMINI_API_KEY
-        };
-        
-        const prompt = `You are Laddu, Sameer's friendly AI assistant for his personal portfolio website. You should act as Sameer's enthusiastic and professional assistant, answering questions about him with personality and charm.
-
-Use only the facts below to answer questions. If someone asks something not covered in the facts, politely redirect them to ask about Sameer's skills, projects, education, or experience.
-
-Keep responses conversational, helpful, and professional. Always refer to Sameer in third person. Keep responses concise but informative.
-
-FACTS ABOUT SAMEER:
-${sameerFacts}
-
-Question: ${question}
-Answer:`;
-
-        const payload = {
-            contents: [{
-                parts: [{
-                    text: prompt
-                }]
-            }]
-        };
-
-        console.log('Making API request to:', GEMINI_API_URL);
-        console.log('Payload:', payload);
+    // === FUNCTION TO CALL SERVER CHAT API ===
+    async function askServer(question) {
+        console.log('askServer called with question:', question);
+        const prompt = `You are Laddu, Sameer's friendly AI assistant for his personal portfolio website. You should act as Sameer's enthusiastic and professional assistant, answering questions about him with personality and charm.\n\nUse only the facts below to answer questions. If someone asks something not covered in the facts, politely redirect them to ask about Sameer's skills, projects, education, or experience.\n\nKeep responses conversational, helpful, and professional. Always refer to Sameer in third person. Keep responses concise but informative.\n\nFACTS ABOUT SAMEER:\n${sameerFacts}\n\nQuestion: ${question}\nAnswer:`;
 
         try {
-            const response = await fetch(GEMINI_API_URL, {
+            const response = await fetch('/api/chat', {
                 method: 'POST',
-                headers: headers,
-                body: JSON.stringify(payload)
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt })
             });
 
             console.log('API response status:', response.status);
@@ -525,16 +498,9 @@ Answer:`;
 
             const data = await response.json();
             console.log('API response data:', data);
-            
-            if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
-                return data.candidates[0].content.parts[0].text;
-            } else {
-                console.error('Unexpected API response structure:', data);
-                throw new Error('Unexpected API response structure');
-            }
+            return data.answer || getSimpleResponse(question);
         } catch (error) {
-            console.error('Error calling Gemini API:', error);
-            
+            console.error('Error calling chat API:', error);
             // Fallback to simple responses if API fails
             return getSimpleResponse(question);
         }
@@ -751,11 +717,11 @@ Answer:`;
         if (chatFloatBtn) chatFloatBtn.classList.add("talking");
         chatbox.scrollTop = chatbox.scrollHeight;
 
-        // Get response from Gemini API
+        // Get response from server chat API
         try {
-            console.log('Calling Gemini API...');
-            const reply = await askGemini(userMessage);
-            console.log('Gemini response:', reply);
+            console.log('Calling server chat API...');
+            const reply = await askServer(userMessage);
+            console.log('Server chat response:', reply);
             
             // Remove typing animation
             const typingIndicator = document.getElementById("typing-indicator");
