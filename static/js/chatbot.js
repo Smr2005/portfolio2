@@ -1,5 +1,5 @@
 // === GEMINI API CONFIGURATION ===
-const GEMINI_API_KEY = "AIzaSyCvMLyX-bfU2qpMs-4KqUkLe2kRmiW0FlM";
+const GEMINI_API_KEY = "AIzaSyDNTm9lF4WCEBBDzgTqQ2BJ_R9QQY7iyPU";
 const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
 // === FACTS ABOUT SAMEER ===
@@ -227,4 +227,5 @@ async function sendMessage() {
         speak(errorMessage);
     }
 }
+
 
