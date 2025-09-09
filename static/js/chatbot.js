@@ -58,8 +58,7 @@ CERTIFICATIONS & ACHIEVEMENTS:
 - Various certifications in AI, Data Science, and Web Development
 - Active participant in tech communities
 - Continuous learner with focus on emerging technologies
-
-```;
+`;
 
 // --- GLOBAL VARIABLES ---
 const chatbox = document.getElementById("chatbox");
@@ -68,73 +67,87 @@ let chatHistory = [];
 // === FUNCTION TO CALL GEMINI API ===
 async function askGemini(question) {
     const headers = {
-        "Content-Type": "application/json",
-        "X-goog-api-key": GEMINI_API_KEY
+        "Content-Type": "application/json"
     };
 
-    // Construct the prompt to be a system instruction for the model
+    // Simplified prompt - less restrictive
     const systemInstruction = {
         parts: [{
-            text: `You are an FAQ chatbot for Sameer's personal portfolio website. Your purpose is to provide information about Sameer based **EXCLUSIVELY** on the facts provided below.
+            text: `You are Sameer's portfolio chatbot. Answer questions about Sameer based on the information provided. Be helpful and professional. If you don't have specific information, acknowledge it politely and suggest what you can help with.
 
-**Instructions:**
-1. **Strictly use the provided FACTS**. Do not invent or hallucinate information.
-2. **Answer concisely but informatively**. Keep responses helpful and professional.
-3. **Always refer to Sameer in the third person**.
-4. **If a question cannot be answered from the provided facts**, politely redirect the user and list the available topics.
-
-**Available Topics:** Education, Technical Skills, Projects, Internships & Experience, Strengths, Areas for Improvement, Career Goals, or Certifications & Achievements.
-
-**FACTS ABOUT SAMEER:**
+ABOUT SAMEER:
 ${sameerFacts}`
         }]
     };
     
-    // Create the full contents array with history and the new user question
-    const contents = [...chatHistory, {
-        role: "user",
-        parts: [{
-            text: question
-        }]
-    }];
-
+    // Create the payload
     const payload = {
-        system_instruction: systemInstruction,
-        contents: contents
+        contents: [{
+            role: "user",  
+            parts: [{
+                text: `${systemInstruction.parts[0].text}\n\nUser Question: ${question}`
+            }]
+        }]
     };
 
     try {
-        const response = await fetch(GEMINI_API_URL, {
+        console.log('Sending request to Gemini API...'); // Debug log
+        
+        const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
             method: 'POST',
             headers: headers,
             body: JSON.stringify(payload)
         });
 
+        console.log('Response status:', response.status); // Debug log
+
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const errorText = await response.text();
+            console.error('API Error Response:', errorText);
+            throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
         }
 
         const data = await response.json();
+        console.log('API Response:', data); // Debug log
+        
+        if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+            throw new Error('Invalid response structure from API');
+        }
+
         const reply = data.candidates[0].content.parts[0].text;
         
-        // Update the chat history with the new user message and the model's reply
+        // Update chat history
         chatHistory.push({ role: "user", parts: [{ text: question }] });
         chatHistory.push({ role: "model", parts: [{ text: reply }] });
 
         return reply;
+
     } catch (error) {
-        console.error('Error calling Gemini API:', error);
-        return "I'm sorry, I'm having trouble connecting right now. Please try asking about Sameer's projects, skills, education, or experience!";
+        console.error('Detailed Error:', error); // Better error logging
+        
+        // More specific error messages
+        if (error.message.includes('401')) {
+            return "API key issue detected. Please check the API configuration.";
+        } else if (error.message.includes('403')) {
+            return "API access forbidden. Please verify API permissions.";
+        } else if (error.message.includes('429')) {
+            return "API rate limit exceeded. Please try again in a moment.";
+        } else {
+            return `I'm having trouble connecting (${error.message}). Please try asking about Sameer's projects, skills, education, or experience!`;
+        }
     }
 }
 
 // === TEXT-TO-SPEECH FUNCTION ===
 function speak(text) {
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 1;
-    utterance.pitch = 1.1;
-    utterance.volume = 1;
-    speechSynthesis.speak(utterance);
+    // Make speech optional and faster for interview demo
+    if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 1.2; // Slightly faster
+        utterance.pitch = 1;
+        utterance.volume = 0.8; // Slightly quieter
+        speechSynthesis.speak(utterance);
+    }
 }
 
 // === INITIALIZE AFTER DOM LOAD ===
@@ -142,10 +155,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const chatFloatBtn = document.getElementById("chat-float-btn");
 
     // Scroll to Chat section on floating button click
-    chatFloatBtn.addEventListener("click", () => {
-        const chatSection = document.getElementById("chat");
-        if (chatSection) chatSection.scrollIntoView({ behavior: "smooth" });
-    });
+    if (chatFloatBtn) {
+        chatFloatBtn.addEventListener("click", () => {
+            const chatSection = document.getElementById("chat");
+            if (chatSection) chatSection.scrollIntoView({ behavior: "smooth" });
+        });
+    }
 
     // Animate floating chat icon based on visible sections
     const sections = ["#about", "#projects", "#certifications", "#skills", "#internships", "#chat", "#contact"];
@@ -157,10 +172,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 const align = sides[index % 2];
                 const rect = entry.target.getBoundingClientRect();
                 const topY = window.scrollY + rect.top + rect.height / 2 - 30;
-                chatFloatBtn.classList.add("animate");
-                chatFloatBtn.style.top = `${topY}px`;
-                chatFloatBtn.style.left = align === "left" ? "5%" : "90%";
-                setTimeout(() => chatFloatBtn.classList.remove("animate"), 500);
+                if (chatFloatBtn) {
+                    chatFloatBtn.classList.add("animate");
+                    chatFloatBtn.style.top = `${topY}px`;
+                    chatFloatBtn.style.left = align === "left" ? "5%" : "90%";
+                    setTimeout(() => chatFloatBtn.classList.remove("animate"), 500);
+                }
             }
         });
     }, { threshold: 0.6 });
@@ -180,7 +197,37 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
+
+    // Add some demo questions for the interview
+    addDemoQuestions();
 });
+
+// === ADD DEMO QUESTIONS FOR INTERVIEW ===
+function addDemoQuestions() {
+    const chatSection = document.getElementById("chat");
+    if (chatSection && !document.getElementById("demo-questions")) {
+        const demoDiv = document.createElement("div");
+        demoDiv.id = "demo-questions";
+        demoDiv.innerHTML = `
+            <div style="margin: 10px 0; padding: 10px; background: #f0f0f0; border-radius: 5px;">
+                <strong>Try asking:</strong><br>
+                <button onclick="askDemo('Tell me about Sameer\'s projects')" style="margin: 2px; padding: 5px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer;">Projects</button>
+                <button onclick="askDemo('What are Sameer\'s technical skills?')" style="margin: 2px; padding: 5px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer;">Skills</button>
+                <button onclick="askDemo('What internships has Sameer completed?')" style="margin: 2px; padding: 5px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer;">Experience</button>
+            </div>
+        `;
+        chatSection.insertBefore(demoDiv, chatSection.firstChild);
+    }
+}
+
+// === DEMO QUESTION FUNCTION ===
+function askDemo(question) {
+    const userInput = document.getElementById("userInput");
+    if (userInput) {
+        userInput.value = question;
+        sendMessage();
+    }
+}
 
 // === FUNCTION TO SEND MESSAGE TO THE CHATBOX ===
 async function sendMessage() {
@@ -190,42 +237,47 @@ async function sendMessage() {
     if (!userMessage) return;
 
     // Display user message
-    chatbox.innerHTML += `<div><strong>You:</strong> ${userMessage}</div>`;
-    inputElem.value = '';
+    if (chatbox) {
+        chatbox.innerHTML += `<div style="margin: 5px 0; padding: 5px; background: #e3f2fd; border-radius: 5px;"><strong>You:</strong> ${userMessage}</div>`;
+        inputElem.value = '';
 
-    // Display bot typing animation
-    chatbox.innerHTML += `
-        <div id="typing-indicator" class="typing-indicator">
-            <strong>Bot is typing</strong>
-            <span></span><span></span><span></span>
-        </div>
-    `;
-    chatFloatBtn.classList.add("talking");
-    chatbox.scrollTop = chatbox.scrollHeight;
+        // Display bot typing animation
+        chatbox.innerHTML += `
+            <div id="typing-indicator" class="typing-indicator" style="margin: 5px 0; padding: 5px; background: #f5f5f5; border-radius: 5px;">
+                <strong>Bot is typing</strong>
+                <span>.</span><span>.</span><span>.</span>
+            </div>
+        `;
+        
+        if (chatFloatBtn) chatFloatBtn.classList.add("talking");
+        chatbox.scrollTop = chatbox.scrollHeight;
 
-    // Get response from Gemini API
-    try {
-        const reply = await askGemini(userMessage);
-        
-        // Remove typing animation and display reply with voice output
-        const typingIndicator = document.getElementById("typing-indicator");
-        if (typingIndicator) typingIndicator.remove();
-        
-        chatbox.innerHTML += `<div><strong>Bot:</strong> ${reply}</div>`;
-        chatFloatBtn.classList.remove("talking");
-        chatbox.scrollTop = chatbox.scrollHeight;
-        speak(reply);
-    } catch (error) {
-        // Handle error case
-        const typingIndicator = document.getElementById("typing-indicator");
-        if (typingIndicator) typingIndicator.remove();
-        
-        const errorMessage = "I'm sorry, I'm having trouble connecting right now. Please try asking about Sameer's projects, skills, education, or experience!";
-        chatbox.innerHTML += `<div><strong>Bot:</strong> ${errorMessage}</div>`;
-        chatFloatBtn.classList.remove("talking");
-        chatbox.scrollTop = chatbox.scrollHeight;
-        speak(errorMessage);
+        // Get response from Gemini API
+        try {
+            const reply = await askGemini(userMessage);
+            
+            // Remove typing animation and display reply
+            const typingIndicator = document.getElementById("typing-indicator");
+            if (typingIndicator) typingIndicator.remove();
+            
+            chatbox.innerHTML += `<div style="margin: 5px 0; padding: 5px; background: #e8f5e8; border-radius: 5px;"><strong>Bot:</strong> ${reply}</div>`;
+            if (chatFloatBtn) chatFloatBtn.classList.remove("talking");
+            chatbox.scrollTop = chatbox.scrollHeight;
+            
+            // Optional speech - comment out if not needed for interview
+            // speak(reply);
+            
+        } catch (error) {
+            // Handle error case
+            const typingIndicator = document.getElementById("typing-indicator");
+            if (typingIndicator) typingIndicator.remove();
+            
+            const errorMessage = "I'm experiencing some technical difficulties. Let me try to help you with information about Sameer's background, projects, or skills!";
+            chatbox.innerHTML += `<div style="margin: 5px 0; padding: 5px; background: #ffe8e8; border-radius: 5px;"><strong>Bot:</strong> ${errorMessage}</div>`;
+            if (chatFloatBtn) chatFloatBtn.classList.remove("talking");
+            chatbox.scrollTop = chatbox.scrollHeight;
+            
+            console.error('SendMessage Error:', error);
+        }
     }
 }
-
-
