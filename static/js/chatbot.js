@@ -1,7 +1,6 @@
 // === GEMINI API CONFIGURATION ===
-const GEMINI_API_KEY = "AIzaSyAGVP4oE4-VgkMHxsDcrrMThWPrkR9a9E4";
+const GEMINI_API_KEY = "AIzaSyB-x18BVQjpw5z1hvkz9O0eNDvQheCtcec";
 const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
-
 
 // === FACTS ABOUT SAMEER ===
 const sameerFacts = `
@@ -67,18 +66,24 @@ async function askGemini(question) {
     "Content-Type": "application/json",
     "X-goog-api-key": GEMINI_API_KEY
   };
-  
+    
   const prompt = `You are an FAQ chatbot for Sameer's personal portfolio website. You should act as Sameer's assistant and answer questions about him professionally and enthusiastically.
 
-Use only the facts below to answer questions. If someone asks something not covered in the facts, politely redirect them to ask about Sameer's skills, projects, education, or experience.
+Your purpose is to provide information about Sameer based **EXCLUSIVELY** on the facts provided below.
 
-Keep responses conversational, helpful, and professional. Always refer to Sameer in third person. Keep responses concise but informative.
+**Instructions:**
+1.  **Strictly use the provided FACTS**. Do not invent or hallucinate information.
+2.  **Answer concisely but informatively**. Keep responses helpful and professional.
+3.  **Always refer to Sameer in the third person**.
+4.  **If a question cannot be answered from the provided facts**, politely redirect the user and list the available topics.
 
-FACTS ABOUT SAMEER:
+**Available Topics:** Education, Technical Skills, Projects, Internships & Experience, Strengths, Areas for Improvement, Career Goals, or Certifications & Achievements.
+
+**FACTS ABOUT SAMEER:**
 ${sameerFacts}
 
-Question: ${question}
-Answer:`;
+**User Question:** ${question}
+**Assistant's Answer:**`;
 
   const payload = {
     contents: [{
@@ -207,6 +212,3 @@ async function sendMessage() {
     speak(errorMessage);
   }
 }
-
-
-
