@@ -1,5 +1,5 @@
 // === GEMINI API CONFIGURATION ===
-const GEMINI_API_KEY = "AIzaSyB-x18BVQjpw5z1hvkz9O0eNDvQheCtcec";
+const GEMINI_API_KEY = "AIzaSyAGVP4oE4-VgkMHxsDcrrMThWPrkR9a9E4";
 const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
 
@@ -207,5 +207,6 @@ async function sendMessage() {
     speak(errorMessage);
   }
 }
+
 
 
