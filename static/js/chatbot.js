@@ -1,6 +1,6 @@
-// === GEMINI API CONFIGURATION ===
-const GEMINI_API_KEY = "AIzaSyDNTm9lF4WCEBBDzgTqQ2BJ_R9QQY7iyPU";
-const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+// === GROQ API CONFIGURATION ===
+const GROQ_API_KEY = "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"; // Replace with your actual Groq API key
+const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 
 // === FACTS ABOUT SAMEER ===
 const sameerFacts = `
@@ -64,36 +64,40 @@ CERTIFICATIONS & ACHIEVEMENTS:
 const chatbox = document.getElementById("chatbox");
 let chatHistory = [];
 
-// === FUNCTION TO CALL GEMINI API ===
-async function askGemini(question) {
+// === FUNCTION TO CALL GROQ API ===
+async function askGroq(question) {
     const headers = {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${GROQ_API_KEY}`
     };
 
-    // Simplified prompt - less restrictive
-    const systemInstruction = {
-        parts: [{
-            text: `You are Sameer's portfolio chatbot. Answer questions about Sameer based on the information provided. Be helpful and professional. If you don't have specific information, acknowledge it politely and suggest what you can help with.
+    // Create the system message with Sameer's information
+    const systemMessage = `You are Sameer's portfolio chatbot. Answer questions about Sameer based on the information provided. Be helpful and professional. If you don't have specific information, acknowledge it politely and suggest what you can help with.
 
 ABOUT SAMEER:
-${sameerFacts}`
-        }]
-    };
-    
-    // Create the payload
+${sameerFacts}`;
+
+    // Create the payload for Groq API
     const payload = {
-        contents: [{
-            role: "user",  
-            parts: [{
-                text: `${systemInstruction.parts[0].text}\n\nUser Question: ${question}`
-            }]
-        }]
+        model: "llama-3.1-8b-instant",
+        messages: [
+            {
+                role: "system",
+                content: systemMessage
+            },
+            {
+                role: "user",
+                content: question
+            }
+        ],
+        temperature: 0.7,
+        max_tokens: 1000
     };
 
     try {
-        console.log('Sending request to Gemini API...'); // Debug log
-        
-        const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+        console.log('Sending request to Groq API...'); // Debug log
+
+        const response = await fetch(GROQ_API_URL, {
             method: 'POST',
             headers: headers,
             body: JSON.stringify(payload)
@@ -109,14 +113,14 @@ ${sameerFacts}`
 
         const data = await response.json();
         console.log('API Response:', data); // Debug log
-        
-        if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+
+        if (!data.choices || !data.choices[0] || !data.choices[0].message) {
             throw new Error('Invalid response structure from API');
         }
 
-        const reply = data.candidates[0].content.parts[0].text;
-        
-        // Update chat history
+        const reply = data.choices[0].message.content;
+
+        // Update chat history (keeping the same format for compatibility)
         chatHistory.push({ role: "user", parts: [{ text: question }] });
         chatHistory.push({ role: "model", parts: [{ text: reply }] });
 
@@ -124,7 +128,7 @@ ${sameerFacts}`
 
     } catch (error) {
         console.error('Detailed Error:', error); // Better error logging
-        
+
         // More specific error messages
         if (error.message.includes('401')) {
             return "API key issue detected. Please check the API configuration.";
@@ -252,31 +256,31 @@ async function sendMessage() {
         if (chatFloatBtn) chatFloatBtn.classList.add("talking");
         chatbox.scrollTop = chatbox.scrollHeight;
 
-        // Get response from Gemini API
+        // Get response from Groq API
         try {
-            const reply = await askGemini(userMessage);
-            
+            const reply = await askGroq(userMessage);
+
             // Remove typing animation and display reply
             const typingIndicator = document.getElementById("typing-indicator");
             if (typingIndicator) typingIndicator.remove();
-            
+
             chatbox.innerHTML += `<div style="margin: 5px 0; padding: 5px; background: #e8f5e8; border-radius: 5px;"><strong>Bot:</strong> ${reply}</div>`;
             if (chatFloatBtn) chatFloatBtn.classList.remove("talking");
             chatbox.scrollTop = chatbox.scrollHeight;
-            
+
             // Optional speech - comment out if not needed for interview
             // speak(reply);
-            
+
         } catch (error) {
             // Handle error case
             const typingIndicator = document.getElementById("typing-indicator");
             if (typingIndicator) typingIndicator.remove();
-            
+
             const errorMessage = "I'm experiencing some technical difficulties. Let me try to help you with information about Sameer's background, projects, or skills!";
             chatbox.innerHTML += `<div style="margin: 5px 0; padding: 5px; background: #ffe8e8; border-radius: 5px;"><strong>Bot:</strong> ${errorMessage}</div>`;
             if (chatFloatBtn) chatFloatBtn.classList.remove("talking");
             chatbox.scrollTop = chatbox.scrollHeight;
-            
+
             console.error('SendMessage Error:', error);
         }
     }

@@ -2,18 +2,24 @@
 
 // Initialize everything when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
-    initializeAnimations();
-    initializeParticles();
-    initializeScrollAnimations();
-    initializeNavigation();
-    initializeSkillBars();
-    initializeTypingEffect();
-    initializeChatBot();
-    initializeCursorEffects();
-    initializeAdvancedEffects();
-    initializeScrollProgress();
-    initializeMobileOptimizations();
+    const initFns = [
+        initializeAnimations,
+        initializeParticles,
+        initializeScrollAnimations,
+        initializeNavigation,
+        initializeSkillBars,
+        initializeTypingEffect,
+        initializeCursorEffects,
+        initializeAdvancedEffects,
+        initializeScrollProgress,
+        initializeChatBot,
+        () => { if (typeof AOS !== 'undefined') AOS.init({ duration: 1000, once: true }); }
+    ];
+    initFns.forEach(fn => { try { fn && fn(); } catch (e) {} });
 });
+
+    
+    initFns.forEach(fn => { try { fn && fn(); } catch (e) {} });
 
 // === 3D Background Animation ===
 function initializeAnimations() {
@@ -36,8 +42,7 @@ function createAnimatedBackground() {
     canvas.height = window.innerHeight;
     
     const particles = [];
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    const particleCount = isMobile ? 20 : 50;
+    const particleCount = 40;
     
     // Create particles
     for (let i = 0; i < particleCount; i++) {
@@ -76,7 +81,7 @@ function createAnimatedBackground() {
                 const dx = particle.x - otherParticle.x;
                 const dy = particle.y - otherParticle.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
-                
+
                 if (distance < 100) {
                     ctx.beginPath();
                     ctx.moveTo(particle.x, particle.y);
@@ -102,6 +107,7 @@ function createAnimatedBackground() {
 // === Particle System ===
 function initializeParticles() {
     const particles = document.querySelectorAll('.particle');
+    
     
     particles.forEach((particle, index) => {
         // Add random movement
@@ -148,63 +154,7 @@ function initializeScrollAnimations() {
     });
 }
 
-// === Navigation ===
-function initializeNavigation() {
-    const navToggle = document.querySelector('.nav-toggle');
-    const navMenu = document.querySelector('.nav-menu-3d');
-    
-    if (navToggle && navMenu) {
-        navToggle.addEventListener('click', () => {
-            navMenu.classList.toggle('active');
-            navToggle.classList.toggle('active');
-        });
-    }
-    
-    // Smooth scrolling for nav links
-    document.querySelectorAll('.nav-link-3d').forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const targetId = link.getAttribute('href');
-            const targetSection = document.querySelector(targetId);
-            
-            if (targetSection) {
-                targetSection.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
-            
-            // Close mobile menu
-            navMenu.classList.remove('active');
-            navToggle.classList.remove('active');
-        });
-    });
-    
-    // Navbar scroll effect
-    let lastScrollY = window.scrollY;
-    const navbar = document.querySelector('.navbar-3d');
-    
-    window.addEventListener('scroll', () => {
-        const currentScrollY = window.scrollY;
-        
-        if (navbar) {
-            if (currentScrollY > lastScrollY && currentScrollY > 100) {
-                navbar.style.transform = 'translateY(-100%)';
-            } else {
-                navbar.style.transform = 'translateY(0)';
-            }
-            
-            // Add background blur on scroll
-            if (currentScrollY > 50) {
-                navbar.style.background = 'rgba(0, 0, 0, 0.9)';
-            } else {
-                navbar.style.background = 'rgba(0, 0, 0, 0.8)';
-            }
-        }
-        
-        lastScrollY = currentScrollY;
-    });
-}
+
 
 // === Skill Bars Animation ===
 function initializeSkillBars() {
@@ -274,42 +224,18 @@ function initializeTypingEffect() {
 
 // === Parallax Effect ===
 function addParallaxEffect() {
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    
     let mouseX = 0;
     let mouseY = 0;
-    
-    // Desktop mouse effects
+
+    // Mouse effects only
     document.addEventListener('mousemove', (e) => {
         mouseX = (e.clientX / window.innerWidth) * 2 - 1;
         mouseY = (e.clientY / window.innerHeight) * 2 - 1;
-        
-        applyParallaxEffects(mouseX, mouseY, isMobile);
+
+        applyParallaxEffects(mouseX, mouseY, false);
     });
     
-    // Mobile touch effects
-    if (isMobile) {
-        document.addEventListener('touchmove', (e) => {
-            const touch = e.touches[0];
-            mouseX = (touch.clientX / window.innerWidth) * 2 - 1;
-            mouseY = (touch.clientY / window.innerHeight) * 2 - 1;
-            
-            applyParallaxEffects(mouseX, mouseY, true);
-        });
-        
-        // Auto-rotate on mobile for continuous effect
-        let autoRotateAngle = 0;
-        setInterval(() => {
-            autoRotateAngle += 0.5;
-            const autoX = Math.sin(autoRotateAngle * 0.01) * 0.3;
-            const autoY = Math.cos(autoRotateAngle * 0.01) * 0.3;
-            
-            applyParallaxEffects(autoX, autoY, true, true);
-        }, 50);
-    }
-    
-    function applyParallaxEffects(x, y, mobile, auto = false) {
-        const intensity = mobile ? (auto ? 2 : 3) : 5;
+        const intensity = 5;
         
         // Apply parallax to floating cube
         const cube = document.querySelector('.floating-cube');
@@ -327,21 +253,114 @@ function addParallaxEffect() {
             profileCard.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
         }
     }
-}
+
 
 // === Floating Elements ===
 function initializeFloatingElements() {
-    // Animate floating elements
     const floatingElements = document.querySelectorAll('#whatsapp-float, #chat-float-btn');
-    
     floatingElements.forEach((element, index) => {
         element.style.animation = `float 3s ease-in-out infinite ${index * 0.5}s`;
     });
 }
 
-// === GEMINI API CONFIGURATION ===
-const GEMINI_API_KEY = "AIzaSyAOIoLw_WNKyBdiCwGbcUrITi7VZWle2UQ";
-const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+// === Mobile Navigation & Drawer ===
+function initializeNavigation() {
+    const body = document.body;
+    const nav = document.querySelector('.navbar-3d');
+    const navToggle = document.querySelector('.nav-toggle');
+    const desktopMenu = document.querySelector('.nav-menu-3d');
+
+    if (!nav || !navToggle || !desktopMenu) return;
+
+    if (document.querySelector('.mobile-drawer')) return;
+
+    const drawer = document.createElement('nav');
+    drawer.className = 'mobile-drawer';
+
+    const clonedMenu = desktopMenu.cloneNode(true);
+    drawer.appendChild(clonedMenu);
+
+    const backdrop = document.createElement('div');
+    backdrop.className = 'drawer-backdrop';
+
+    document.body.appendChild(backdrop);
+    document.body.appendChild(drawer);
+
+    let startX = 0;
+    let currentX = 0;
+    let isSwiping = false;
+
+    function openDrawer() {
+        navToggle.classList.add('active');
+        drawer.classList.add('open');
+        backdrop.classList.add('visible');
+        body.classList.add('nav-open');
+        navToggle.setAttribute('aria-expanded', 'true');
+    }
+
+    function closeDrawer() {
+        navToggle.classList.remove('active');
+        drawer.classList.remove('open');
+        backdrop.classList.remove('visible');
+        body.classList.remove('nav-open');
+        navToggle.setAttribute('aria-expanded', 'false');
+        drawer.style.transform = '';
+    }
+
+    navToggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (drawer.classList.contains('open')) closeDrawer(); else openDrawer();
+    });
+
+    backdrop.addEventListener('click', closeDrawer);
+
+    clonedMenu.querySelectorAll('.nav-link-3d').forEach((link) => {
+        link.addEventListener('click', (e) => {
+            const href = link.getAttribute('href');
+            if (href && href.startsWith('#')) {
+                e.preventDefault();
+                const target = document.querySelector(href);
+                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            closeDrawer();
+        });
+    });
+
+    drawer.addEventListener('touchstart', (e) => {
+        if (!drawer.classList.contains('open')) return;
+        startX = e.touches[0].clientX;
+        currentX = startX;
+        isSwiping = true;
+        drawer.style.transition = 'none';
+    }, { passive: true });
+
+    drawer.addEventListener('touchmove', (e) => {
+        if (!isSwiping) return;
+        currentX = e.touches[0].clientX;
+        const deltaX = currentX - startX;
+        if (deltaX < 0) {
+            drawer.style.transform = `translateX(${deltaX}px)`;
+        }
+    }, { passive: true });
+
+    drawer.addEventListener('touchend', () => {
+        if (!isSwiping) return;
+        const deltaX = currentX - startX;
+        drawer.style.transition = '';
+        drawer.style.transform = '';
+        isSwiping = false;
+        if (deltaX < -60) closeDrawer();
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && drawer.classList.contains('open')) closeDrawer();
+    });
+}
+
+// === GROQ API CONFIGURATION ===
+const GROQ_API_KEY = "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"; // Replace with your actual Groq API key
+const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 
 // === FACTS ABOUT SAMEER ===
 const sameerFacts = `
@@ -401,7 +420,7 @@ CERTIFICATIONS & ACHIEVEMENTS:
 - Continuous learner with focus on emerging technologies
 `;
 
-// === Enhanced Chat Bot with Voice Features & Gemini API ===
+// === Enhanced Chat Bot with Voice Features & Groq API ===
 function initializeChatBot() {
     let isVoiceEnabled = true;
     let recognition = null;
@@ -475,15 +494,15 @@ function initializeChatBot() {
         voiceToggleBtn.addEventListener('click', toggleVoiceResponse);
     }
 
-    // === FUNCTION TO CALL GEMINI API ===
-    async function askGemini(question) {
+    // === FUNCTION TO CALL GROQ API ===
+    window.askGemini = async function(question) {
         console.log('askGemini called with question:', question);
-        
+
         const headers = {
             "Content-Type": "application/json",
-            "X-goog-api-key": GEMINI_API_KEY
+            "Authorization": `Bearer ${GROQ_API_KEY}`
         };
-        
+
         const prompt = `You are Laddu, Sameer's friendly AI assistant for his personal portfolio website. You should act as Sameer's enthusiastic and professional assistant, answering questions about him with personality and charm.
 
 Use only the facts below to answer questions. If someone asks something not covered in the facts, politely redirect them to ask about Sameer's skills, projects, education, or experience.
@@ -497,18 +516,26 @@ Question: ${question}
 Answer:`;
 
         const payload = {
-            contents: [{
-                parts: [{
-                    text: prompt
-                }]
-            }]
+            model: "llama-3.1-8b-instant",
+            messages: [
+                {
+                    role: "system",
+                    content: prompt
+                },
+                {
+                    role: "user",
+                    content: question
+                }
+            ],
+            temperature: 0.7,
+            max_tokens: 1000
         };
 
-        console.log('Making API request to:', GEMINI_API_URL);
+        console.log('Making API request to:', GROQ_API_URL);
         console.log('Payload:', payload);
 
         try {
-            const response = await fetch(GEMINI_API_URL, {
+            const response = await fetch(GROQ_API_URL, {
                 method: 'POST',
                 headers: headers,
                 body: JSON.stringify(payload)
@@ -524,16 +551,16 @@ Answer:`;
 
             const data = await response.json();
             console.log('API response data:', data);
-            
-            if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
-                return data.candidates[0].content.parts[0].text;
+
+            if (data.choices && data.choices[0] && data.choices[0].message) {
+                return data.choices[0].message.content;
             } else {
                 console.error('Unexpected API response structure:', data);
                 throw new Error('Unexpected API response structure');
             }
         } catch (error) {
-            console.error('Error calling Gemini API:', error);
-            
+            console.error('Error calling Groq API:', error);
+
             // Fallback to simple responses if API fails
             return getSimpleResponse(question);
         }
@@ -922,7 +949,6 @@ document.addEventListener('DOMContentLoaded', add3DCardEffects);
 
 // === Cursor Trail Effects ===
 function initializeCursorEffects() {
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     
     const cursor = document.createElement('div');
     cursor.className = 'cursor-trail';
@@ -932,21 +958,6 @@ function initializeCursorEffects() {
     cursorDot.className = 'cursor-dot';
     document.body.appendChild(cursorDot);
     
-    // Enhanced mobile cursor styles
-    if (isMobile) {
-        cursor.style.cssText += `
-            width: 20px;
-            height: 20px;
-            background: radial-gradient(circle, rgba(0,255,255,0.8) 0%, rgba(0,255,255,0.2) 70%, transparent 100%);
-            border: 2px solid rgba(0,255,255,0.6);
-        `;
-        cursorDot.style.cssText += `
-            width: 12px;
-            height: 12px;
-            background: var(--primary-cyan);
-            box-shadow: 0 0 15px var(--primary-cyan);
-        `;
-    }
     
     let mouseX = 0, mouseY = 0;
     let cursorX = 0, cursorY = 0;
@@ -959,34 +970,7 @@ function initializeCursorEffects() {
         cursorDot.style.top = mouseY + 'px';
     });
     
-    // Add touch events for mobile
-    if (isMobile) {
-        document.addEventListener('touchstart', (e) => {
-            const touch = e.touches[0];
-            mouseX = touch.clientX;
-            mouseY = touch.clientY;
-            
-            cursorDot.style.left = mouseX + 'px';
-            cursorDot.style.top = mouseY + 'px';
-            cursorDot.style.transform = 'scale(1.5)';
-            
-            // Create touch ripple effect
-            createTouchRipple(mouseX, mouseY);
-        });
-        
-        document.addEventListener('touchmove', (e) => {
-            const touch = e.touches[0];
-            mouseX = touch.clientX;
-            mouseY = touch.clientY;
-            
-            cursorDot.style.left = mouseX + 'px';
-            cursorDot.style.top = mouseY + 'px';
-        });
-        
-        document.addEventListener('touchend', () => {
-            cursorDot.style.transform = 'scale(1)';
-        });
-    }
+    // Mouse-only handlers
     
     // Touch ripple effect function
     function createTouchRipple(x, y) {
@@ -1076,109 +1060,47 @@ function initializeCursorEffects() {
 
 // === Advanced 3D Effects ===
 function initializeAdvancedEffects() {
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    
-    // Desktop mouse effects
-    if (!isMobile) {
-        // Add magnetic effect to buttons (desktop only)
-        const magneticElements = document.querySelectorAll('.project-link, .contact-card-3d, .form-button-3d');
-        
-        magneticElements.forEach(element => {
-            element.addEventListener('mousemove', (e) => {
-                const rect = element.getBoundingClientRect();
-                const x = e.clientX - rect.left - rect.width / 2;
-                const y = e.clientY - rect.top - rect.height / 2;
-                
-                element.style.transform = `translate(${x * 0.05}px, ${y * 0.05}px) scale(1.02)`;
-            });
-            
-            element.addEventListener('mouseleave', () => {
-                element.style.transform = 'translate(0px, 0px) scale(1)';
-            });
+    // Desktop mouse effects only: magnetic and tilt
+    const magneticElements = document.querySelectorAll('.project-link, .contact-card-3d, .form-button-3d');
+
+    magneticElements.forEach(element => {
+        element.addEventListener('mousemove', (e) => {
+            const rect = element.getBoundingClientRect();
+            const x = e.clientX - rect.left - rect.width / 2;
+            const y = e.clientY - rect.top - rect.height / 2;
+
+            element.style.transform = `translate(${x * 0.05}px, ${y * 0.05}px) scale(1.02)`;
         });
-        
-        // Add tilt effect to cards (desktop only)
-        const tiltElements = document.querySelectorAll('.project-card-3d, .skill-card-3d, .cert-card-3d');
-        
-        tiltElements.forEach(element => {
-            element.addEventListener('mousemove', (e) => {
-                const rect = element.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
-                
-                const rotateX = (y - centerY) / 20;
-                const rotateY = (centerX - x) / 20;
-                
-                element.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(10px)`;
-            });
-            
-            element.addEventListener('mouseleave', () => {
-                element.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px)';
-            });
+
+        element.addEventListener('mouseleave', () => {
+            element.style.transform = 'translate(0px, 0px) scale(1)';
         });
-    } else {
-        // Mobile touch effects - make them attractive!
-        const touchElements = document.querySelectorAll('.project-card-3d, .skill-card-3d, .cert-card-3d, .contact-card-3d');
-        
-        touchElements.forEach(element => {
-            element.addEventListener('touchstart', (e) => {
-                element.style.transition = 'transform 0.2s ease';
-                element.style.transform = 'scale(1.05) translateZ(20px)';
-                
-                // Add glow effect
-                element.style.boxShadow = '0 10px 30px rgba(0, 255, 255, 0.4)';
-            });
-            
-            element.addEventListener('touchend', () => {
-                element.style.transform = 'scale(1) translateZ(0px)';
-                element.style.boxShadow = '0 4px 15px rgba(0, 255, 255, 0.2)';
-            });
+    });
+
+    const tiltElements = document.querySelectorAll('.project-card-3d, .skill-card-3d, .cert-card-3d');
+    tiltElements.forEach(element => {
+        element.addEventListener('mousemove', (e) => {
+            const rect = element.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+
+            const rotateX = (y - centerY) / 20;
+            const rotateY = (centerX - x) / 20;
+
+            element.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(10px)`;
         });
-        
-        // Mobile button effects
-        const mobileButtons = document.querySelectorAll('.project-link, .form-button-3d, .action-btn');
-        
-        mobileButtons.forEach(button => {
-            button.addEventListener('touchstart', (e) => {
-                button.style.transition = 'all 0.2s ease';
-                button.style.transform = 'scale(0.95)';
-                
-                // Create touch feedback
-                const feedback = document.createElement('div');
-                feedback.style.cssText = `
-                    position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    width: 100px;
-                    height: 100px;
-                    background: radial-gradient(circle, rgba(0,255,255,0.3) 0%, transparent 70%);
-                    border-radius: 50%;
-                    transform: translate(-50%, -50%) scale(0);
-                    animation: touchFeedback 0.6s ease-out;
-                    pointer-events: none;
-                    z-index: 1000;
-                `;
-                
-                button.style.position = 'relative';
-                button.appendChild(feedback);
-                
-                setTimeout(() => {
-                    feedback.remove();
-                }, 600);
-            });
-            
-            button.addEventListener('touchend', () => {
-                button.style.transform = 'scale(1)';
-            });
+
+        element.addEventListener('mouseleave', () => {
+            element.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px)';
         });
-    }
-    
+    });
+
     // Add ripple effect
     const rippleElements = document.querySelectorAll('button, .nav-link-3d');
-    
+
     rippleElements.forEach(element => {
         element.addEventListener('click', (e) => {
             const ripple = document.createElement('span');
@@ -1186,7 +1108,7 @@ function initializeAdvancedEffects() {
             const size = Math.max(rect.width, rect.height);
             const x = e.clientX - rect.left - size / 2;
             const y = e.clientY - rect.top - size / 2;
-            
+
             ripple.style.cssText = `
                 position: absolute;
                 width: ${size}px;
@@ -1199,17 +1121,17 @@ function initializeAdvancedEffects() {
                 animation: ripple 0.6s ease-out;
                 pointer-events: none;
             `;
-            
+
             element.style.position = 'relative';
             element.style.overflow = 'hidden';
             element.appendChild(ripple);
-            
+
             setTimeout(() => {
                 ripple.remove();
             }, 600);
         });
     });
-    
+
     // Add ripple animation
     const rippleStyles = `
         @keyframes ripple {
@@ -1219,7 +1141,7 @@ function initializeAdvancedEffects() {
             }
         }
     `;
-    
+
     const rippleStyleSheet = document.createElement('style');
     rippleStyleSheet.textContent = rippleStyles;
     document.head.appendChild(rippleStyleSheet);
@@ -1242,61 +1164,26 @@ function initializeScrollProgress() {
 
 // === Enhanced Floating Elements Animation ===
 function enhanceFloatingElements() {
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    
-    // Add more dynamic movement to floating elements
+    // Add more dynamic movement to floating elements (mouse-only)
     const floatingElements = document.querySelectorAll('.floating-cube, .profile-card');
-    
+
     let mouseX = 0;
     let mouseY = 0;
-    
-    // Desktop mouse interactions
+
     document.addEventListener('mousemove', (e) => {
         mouseX = (e.clientX / window.innerWidth) * 2 - 1;
         mouseY = (e.clientY / window.innerHeight) * 2 - 1;
-        
+
         floatingElements.forEach((element, index) => {
-            const intensity = isMobile ? (index + 1) * 1.5 : (index + 1) * 2;
+            const intensity = (index + 1) * 2;
             const rotateX = mouseY * intensity;
             const rotateY = mouseX * intensity;
-            
+
             element.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
         });
     });
-    
-    // Mobile touch interactions with enhanced effects
-    if (isMobile) {
-        document.addEventListener('touchstart', (e) => {
-            const touch = e.touches[0];
-            floatingElements.forEach((element, index) => {
-                element.style.transition = 'transform 0.3s ease';
-                element.style.transform = `scale(1.05) rotateZ(${(index + 1) * 5}deg)`;
-            });
-        });
-        
-        document.addEventListener('touchend', () => {
-            floatingElements.forEach((element) => {
-                element.style.transform = 'scale(1) rotateZ(0deg)';
-            });
-        });
-        
-        // Add gyroscope effect if available
-        if (window.DeviceOrientationEvent) {
-            window.addEventListener('deviceorientation', (e) => {
-                const tiltX = e.beta / 90; // -1 to 1
-                const tiltY = e.gamma / 90; // -1 to 1
-                
-                floatingElements.forEach((element, index) => {
-                    const intensity = (index + 1) * 3;
-                    const rotateX = tiltX * intensity;
-                    const rotateY = tiltY * intensity;
-                    
-                    element.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-                });
-            });
-        }
-    }
 }
+
 
 // Initialize enhanced floating elements
 document.addEventListener('DOMContentLoaded', enhanceFloatingElements);
@@ -1362,7 +1249,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // === Cursor Particle Trail ===
 function initializeCursorParticles() {
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     
     const container = document.getElementById('cursor-particles');
     if (!container) return;
@@ -1493,7 +1379,6 @@ function initializeNavigation() {
     
     if (!navToggle || !navMenu) return;
     
-    // Toggle mobile menu
     navToggle.addEventListener('click', () => {
         navToggle.classList.toggle('active');
         navMenu.classList.toggle('active');
@@ -1536,153 +1421,15 @@ function initializeNavigation() {
     });
 }
 
-// === Mobile Optimizations ===
-function initializeMobileOptimizations() {
-    // Detect mobile device
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    
-    if (isMobile || isTouch) {
-        document.body.classList.add('mobile-device');
-        
-        // Optimize animations for mobile
-        optimizeAnimationsForMobile();
-        
-        // Add touch-friendly interactions
-        addTouchInteractions();
-        
-        // Optimize particle count for mobile
-        optimizeParticlesForMobile();
-        
-        // Add mobile-specific event listeners
-        addMobileEventListeners();
-    }
-    
-    // Handle orientation changes
-    window.addEventListener('orientationchange', () => {
-        setTimeout(() => {
-            // Recalculate dimensions after orientation change
-            const canvas = document.getElementById('bg-canvas');
-            if (canvas) {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-            }
-            
-            // Trigger resize event for other components
-            window.dispatchEvent(new Event('resize'));
-        }, 100);
-    });
-    
-    // Optimize scroll performance on mobile
-    let ticking = false;
-    function optimizedScrollHandler() {
-        if (!ticking) {
-            requestAnimationFrame(() => {
-                // Handle scroll events here
-                updateScrollProgress();
-                ticking = false;
-            });
-            ticking = true;
-        }
-    }
-    
-    window.addEventListener('scroll', optimizedScrollHandler, { passive: true });
-}
 
-function optimizeAnimationsForMobile() {
-    // Reduce particle count on mobile
-    const particles = document.querySelectorAll('.particle');
-    particles.forEach((particle, index) => {
-        if (index > 5) { // Keep only first 6 particles on mobile
-            particle.style.display = 'none';
-        }
-    });
-    
-    // Reduce background elements on mobile
-    const bgCircles = document.querySelectorAll('.bg-circle');
-    bgCircles.forEach((circle, index) => {
-        if (index > 1) { // Keep only first 2 background circles
-            circle.style.display = 'none';
-        }
-    });
-    
-    // Simplify 3D transforms on mobile
-    const floatingElements = document.querySelectorAll('.floating-cube, .profile-card');
-    floatingElements.forEach(element => {
-        element.style.willChange = 'transform';
-        element.style.backfaceVisibility = 'hidden';
-    });
-}
 
-function addTouchInteractions() {
-    // Add touch feedback to interactive elements
-    const touchElements = document.querySelectorAll('.project-card-3d, .cert-card-3d, .contact-card-3d, .nav-link-3d');
-    
-    touchElements.forEach(element => {
-        element.addEventListener('touchstart', () => {
-            element.style.transform = 'scale(0.98)';
-        }, { passive: true });
-        
-        element.addEventListener('touchend', () => {
-            setTimeout(() => {
-                element.style.transform = '';
-            }, 150);
-        }, { passive: true });
-    });
-    
-    // Prevent zoom on double tap for specific elements
-    const preventZoomElements = document.querySelectorAll('button, .nav-link-3d, .project-link');
-    preventZoomElements.forEach(element => {
-        element.addEventListener('touchend', (e) => {
-            e.preventDefault();
-        });
-    });
-}
 
-function optimizeParticlesForMobile() {
-    // Reduce canvas particle count for mobile
-    const canvas = document.getElementById('bg-canvas');
-    if (canvas) {
-        const ctx = canvas.getContext('2d');
-        // Reduce particle count to 20 for mobile (from 50)
-        window.mobileParticleCount = 20;
-    }
-}
 
-function addMobileEventListeners() {
-    // Handle mobile-specific gestures
-    let touchStartY = 0;
-    let touchEndY = 0;
-    
-    document.addEventListener('touchstart', (e) => {
-        touchStartY = e.changedTouches[0].screenY;
-    }, { passive: true });
-    
-    document.addEventListener('touchend', (e) => {
-        touchEndY = e.changedTouches[0].screenY;
-        handleSwipeGesture();
-    }, { passive: true });
-    
-    function handleSwipeGesture() {
-        const swipeThreshold = 50;
-        const diff = touchStartY - touchEndY;
-        
-        if (Math.abs(diff) > swipeThreshold) {
-            if (diff > 0) {
-                // Swipe up - could trigger some action
-                console.log('Swipe up detected');
-            } else {
-                // Swipe down - could trigger some action
-                console.log('Swipe down detected');
-            }
-        }
-    }
-    
-    // Optimize touch scrolling
-    document.addEventListener('touchmove', (e) => {
-        // Allow natural scrolling
-    }, { passive: true });
-}
+
+
+
+
+
 
 function updateScrollProgress() {
     const progressBar = document.querySelector('.progress-bar');
@@ -1695,20 +1442,12 @@ function updateScrollProgress() {
     progressBar.style.width = scrollPercent + '%';
 }
 
-// === Viewport Height Fix for Mobile ===
-function setMobileViewportHeight() {
-    // Fix for mobile viewport height issues
-    const vh = window.innerHeight * 0.01;
-    document.documentElement.style.setProperty('--vh', `${vh}px`);
-}
+
 
 // Set initial viewport height
-setMobileViewportHeight();
 
 // Update on resize and orientation change
-window.addEventListener('resize', setMobileViewportHeight);
 window.addEventListener('orientationchange', () => {
-    setTimeout(setMobileViewportHeight, 100);
 });
 
 // === Performance Optimizations ===
