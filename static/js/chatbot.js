@@ -1,6 +1,6 @@
-// === GROQ API CONFIGURATION ===
-const GROQ_API_KEY = "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"; // Replace with your actual Groq API key
-const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
+// === GEMINI API CONFIGURATION ===
+const GEMINI_API_KEY = "AIzaSyDNTm9lF4WCEBBDzgTqQ2BJ_R9QQY7iyPU";
+const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
 // === FACTS ABOUT SAMEER ===
 const sameerFacts = `
@@ -64,40 +64,36 @@ CERTIFICATIONS & ACHIEVEMENTS:
 const chatbox = document.getElementById("chatbox");
 let chatHistory = [];
 
-// === FUNCTION TO CALL GROQ API ===
-async function askGroq(question) {
+// === FUNCTION TO CALL GEMINI API ===
+async function askGemini(question) {
     const headers = {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${GROQ_API_KEY}`
+        "Content-Type": "application/json"
     };
 
-    // Create the system message with Sameer's information
-    const systemMessage = `You are Sameer's portfolio chatbot. Answer questions about Sameer based on the information provided. Be helpful and professional. If you don't have specific information, acknowledge it politely and suggest what you can help with.
+    // Simplified prompt - less restrictive
+    const systemInstruction = {
+        parts: [{
+            text: `You are Sameer's portfolio chatbot. Answer questions about Sameer based on the information provided. Be helpful and professional. If you don't have specific information, acknowledge it politely and suggest what you can help with.
 
 ABOUT SAMEER:
-${sameerFacts}`;
-
-    // Create the payload for Groq API
+${sameerFacts}`
+        }]
+    };
+    
+    // Create the payload
     const payload = {
-        model: "llama-3.1-8b-instant",
-        messages: [
-            {
-                role: "system",
-                content: systemMessage
-            },
-            {
-                role: "user",
-                content: question
-            }
-        ],
-        temperature: 0.7,
-        max_tokens: 1000
+        contents: [{
+            role: "user",  
+            parts: [{
+                text: `${systemInstruction.parts[0].text}\n\nUser Question: ${question}`
+            }]
+        }]
     };
 
     try {
-        console.log('Sending request to Groq API...'); // Debug log
-
-        const response = await fetch(GROQ_API_URL, {
+        console.log('Sending request to Gemini API...'); // Debug log
+        
+        const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
             method: 'POST',
             headers: headers,
             body: JSON.stringify(payload)
@@ -113,14 +109,14 @@ ${sameerFacts}`;
 
         const data = await response.json();
         console.log('API Response:', data); // Debug log
-
-        if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+        
+        if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
             throw new Error('Invalid response structure from API');
         }
 
-        const reply = data.choices[0].message.content;
-
-        // Update chat history (keeping the same format for compatibility)
+        const reply = data.candidates[0].content.parts[0].text;
+        
+        // Update chat history
         chatHistory.push({ role: "user", parts: [{ text: question }] });
         chatHistory.push({ role: "model", parts: [{ text: reply }] });
 
@@ -128,7 +124,7 @@ ${sameerFacts}`;
 
     } catch (error) {
         console.error('Detailed Error:', error); // Better error logging
-
+        
         // More specific error messages
         if (error.message.includes('401')) {
             return "API key issue detected. Please check the API configuration.";
@@ -157,39 +153,58 @@ function speak(text) {
 // === INITIALIZE AFTER DOM LOAD ===
 document.addEventListener("DOMContentLoaded", () => {
     const chatFloatBtn = document.getElementById("chat-float-btn");
+    const chatSection = document.getElementById("chat");
 
     // Scroll to Chat section on floating button click
-    if (chatFloatBtn) {
+    if (chatFloatBtn && chatSection) {
+        // Initialize floating button position
+        updateFloatingButtonPosition();
+
+        // Add click handler
         chatFloatBtn.addEventListener("click", () => {
-            const chatSection = document.getElementById("chat");
-            if (chatSection) chatSection.scrollIntoView({ behavior: "smooth" });
+            chatSection.scrollIntoView({ behavior: "smooth" });
         });
+
+        // Handle scroll events for floating button position
+        window.addEventListener("scroll", updateFloatingButtonPosition);
+        window.addEventListener("resize", updateFloatingButtonPosition);
     }
 
-    // Animate floating chat icon based on visible sections
-    const sections = ["#about", "#projects", "#certifications", "#skills", "#internships", "#chat", "#contact"];
-    const sides = ["right", "left"];
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-                const index = sections.findIndex(id => entry.target.matches(id));
-                const align = sides[index % 2];
-                const rect = entry.target.getBoundingClientRect();
-                const topY = window.scrollY + rect.top + rect.height / 2 - 30;
-                if (chatFloatBtn) {
-                    chatFloatBtn.classList.add("animate");
-                    chatFloatBtn.style.top = `${topY}px`;
-                    chatFloatBtn.style.left = align === "left" ? "5%" : "90%";
-                    setTimeout(() => chatFloatBtn.classList.remove("animate"), 500);
-                }
-            }
-        });
-    }, { threshold: 0.6 });
+    function updateFloatingButtonPosition() {
+        const isMobile = window.matchMedia('(max-width: 768px)').matches;
+        
+        if (isMobile) {
+            // Fixed position for mobile
+            chatFloatBtn.style.position = 'fixed';
+            chatFloatBtn.style.bottom = '20px';
+            chatFloatBtn.style.right = '20px';
+            chatFloatBtn.style.top = 'auto';
+            chatFloatBtn.style.left = 'auto';
+        } else {
+            // Dynamic position for desktop
+            const sections = ["#about", "#projects", "#certifications", "#skills", "#internships", "#chat", "#contact"];
+            const currentSection = sections.find(id => {
+                const el = document.querySelector(id);
+                if (!el) return false;
+                const rect = el.getBoundingClientRect();
+                return rect.top <= window.innerHeight/2 && rect.bottom >= window.innerHeight/2;
+            });
 
-    sections.forEach(id => {
-        const el = document.querySelector(id);
-        if (el) observer.observe(el);
-    });
+            if (currentSection) {
+                const index = sections.indexOf(currentSection);
+                const align = index % 2 === 0 ? "right" : "left";
+                const el = document.querySelector(currentSection);
+                const rect = el.getBoundingClientRect();
+                const topY = window.scrollY + rect.top + rect.height/2;
+                
+                chatFloatBtn.style.position = 'absolute';
+                chatFloatBtn.style.top = `${topY}px`;
+                chatFloatBtn.style.left = align === "left" ? "5%" : "90%";
+                chatFloatBtn.classList.add("animate");
+                setTimeout(() => chatFloatBtn.classList.remove("animate"), 500);
+            }
+        }
+    }
 
     // Support sending a message on ENTER key press
     const userInput = document.getElementById("userInput");
@@ -256,31 +271,31 @@ async function sendMessage() {
         if (chatFloatBtn) chatFloatBtn.classList.add("talking");
         chatbox.scrollTop = chatbox.scrollHeight;
 
-        // Get response from Groq API
+        // Get response from Gemini API
         try {
-            const reply = await askGroq(userMessage);
-
+            const reply = await askGemini(userMessage);
+            
             // Remove typing animation and display reply
             const typingIndicator = document.getElementById("typing-indicator");
             if (typingIndicator) typingIndicator.remove();
-
+            
             chatbox.innerHTML += `<div style="margin: 5px 0; padding: 5px; background: #e8f5e8; border-radius: 5px;"><strong>Bot:</strong> ${reply}</div>`;
             if (chatFloatBtn) chatFloatBtn.classList.remove("talking");
             chatbox.scrollTop = chatbox.scrollHeight;
-
+            
             // Optional speech - comment out if not needed for interview
             // speak(reply);
-
+            
         } catch (error) {
             // Handle error case
             const typingIndicator = document.getElementById("typing-indicator");
             if (typingIndicator) typingIndicator.remove();
-
+            
             const errorMessage = "I'm experiencing some technical difficulties. Let me try to help you with information about Sameer's background, projects, or skills!";
             chatbox.innerHTML += `<div style="margin: 5px 0; padding: 5px; background: #ffe8e8; border-radius: 5px;"><strong>Bot:</strong> ${errorMessage}</div>`;
             if (chatFloatBtn) chatFloatBtn.classList.remove("talking");
             chatbox.scrollTop = chatbox.scrollHeight;
-
+            
             console.error('SendMessage Error:', error);
         }
     }

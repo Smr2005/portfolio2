@@ -18,9 +18,6 @@ document.addEventListener('DOMContentLoaded', function() {
     initFns.forEach(fn => { try { fn && fn(); } catch (e) {} });
 });
 
-    
-    initFns.forEach(fn => { try { fn && fn(); } catch (e) {} });
-
 // === 3D Background Animation ===
 function initializeAnimations() {
     // Create animated background
@@ -232,10 +229,12 @@ function addParallaxEffect() {
         mouseX = (e.clientX / window.innerWidth) * 2 - 1;
         mouseY = (e.clientY / window.innerHeight) * 2 - 1;
 
-        applyParallaxEffects(mouseX, mouseY, false);
+        applyParallaxEffects(mouseX, mouseY);
     });
-    
-        const intensity = 5;
+}
+
+function applyParallaxEffects(x, y) {
+    const intensity = 5;
         
         // Apply parallax to floating cube
         const cube = document.querySelector('.floating-cube');
