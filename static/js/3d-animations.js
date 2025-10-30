@@ -269,21 +269,57 @@ function initializeNavigation() {
     const navToggle = document.querySelector('.nav-toggle');
     const desktopMenu = document.querySelector('.nav-menu-3d');
 
-    if (!nav || !navToggle || !desktopMenu) return;
+    if (!nav || !navToggle || !desktopMenu) {
+        console.warn('Navigation elements missing.');
+        return;
+    }
 
-    if (document.querySelector('.mobile-drawer')) return;
+    // Hamburger menu toggle
+    navToggle.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        navToggle.classList.toggle('active');
+        desktopMenu.classList.toggle('active');
+        body.classList.toggle('nav-open');
+    });
 
-    const drawer = document.createElement('nav');
-    drawer.className = 'mobile-drawer';
+    // Close menu when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!navToggle.contains(e.target) && !desktopMenu.contains(e.target)) {
+            navToggle.classList.remove('active');
+            desktopMenu.classList.remove('active');
+            body.classList.remove('nav-open');
+        }
+    });
 
-    const clonedMenu = desktopMenu.cloneNode(true);
-    drawer.appendChild(clonedMenu);
-
-    const backdrop = document.createElement('div');
-    backdrop.className = 'drawer-backdrop';
-
-    document.body.appendChild(backdrop);
-    document.body.appendChild(drawer);
+    // Navigation link click: smooth scroll
+    desktopMenu.querySelectorAll('.nav-link-3d').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            if (!targetId || !targetId.startsWith('#')) {
+                console.warn('Navigation link missing or invalid href:', targetId);
+                return;
+            }
+            const targetSection = document.querySelector(targetId);
+            if (!targetSection) {
+                console.warn('Target section not found:', targetId);
+                return;
+            }
+            navToggle.classList.remove('active');
+            desktopMenu.classList.remove('active');
+            body.classList.remove('nav-open');
+            setTimeout(() => {
+                const headerOffset = 80;
+                const elementPosition = targetSection.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
+                });
+            }, 300);
+        });
+    });
 
     let startX = 0;
     let currentX = 0;
@@ -1184,8 +1220,10 @@ function enhanceFloatingElements() {
 }
 
 
-// Initialize enhanced floating elements
-document.addEventListener('DOMContentLoaded', enhanceFloatingElements);
+// Initialize enhanced floating elements only for desktop/laptop
+if (!('ontouchstart' in window)) {
+    document.addEventListener('DOMContentLoaded', enhanceFloatingElements);
+}
 
 // === Particle Explosion Effect ===
 function createParticleExplosion(x, y) {
